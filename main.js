@@ -314,6 +314,11 @@ function hideSettings() {
 	settingsPanel.innerHTML = '';
 }
 
+function undo() {
+	items.pop();
+	drawItems();
+}
+
 function drawItems() {
   itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
   for (var i = 0; i < items.length; i++) {

@@ -51,4 +51,9 @@ const submenuItem = {
       <button onclick="createItem('circle')">Create Circle</button>
     </div>
   `,
+  more: `
+    <div>
+      <button onclick="undo()">Undo</button>
+    </div>
+  `,
 }
