@@ -9,11 +9,12 @@ $conn = mysqli_connect($host, $user, $password, $database);
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $data = json_decode(file_get_contents("php://input"));
 
+  $id = $data->id;
   $file = $data->file;
   $items = $data->items;
   $url = $data->url;
 
-  $query = "INSERT INTO docs (file, items, url) VALUES ('$file', '$items', '$url')";
+  $query = "INSERT INTO docs (id,file, items, url) VALUES ('$id','$file', '$items', '$url')";
   $result = mysqli_query($conn, $query);
 
   if ($result) {

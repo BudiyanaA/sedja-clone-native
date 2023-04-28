@@ -66,6 +66,15 @@
   <script src="../public/assets/js/main.js"></script>
 
   <script>
+    function generateId() {
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  var id = '';
+  for (var i = 0; i < 20; i++) {
+    id += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return id;
+}
+
 function saveFile() {
   var input = document.querySelector('input[type="file"]');
   var file = input.files[0];
@@ -79,9 +88,6 @@ function saveFile() {
   xhr.onreadystatechange = function() {
     if (this.readyState === XMLHttpRequest.DONE) {
       if (this.status === 200) {
-        console.log("File berhasil diunggah ke direktori upload");
-        alert("File berhasil diunggah ke direktori upload");
-
         // Mengambil response dari server
         var response = JSON.parse(this.responseText);
 
@@ -93,8 +99,10 @@ function saveFile() {
 
           var baseUrl = window.location.origin;
           var relativeUrl = baseUrl + '/sedja-clone-native/upload/' + file.name;
+          var id = generateId();
 
           var data = {
+            id: id,
             file: file.name,
             url: relativeUrl,
             items: JSON.stringify(items)
@@ -104,7 +112,7 @@ function saveFile() {
             if (this.readyState === XMLHttpRequest.DONE) {
               if (this.status === 200) {
                 console.log("Data berhasil disimpan ke database");
-                alert("Data berhasil disimpan ke database");
+                alert("File berhasil diunggah ke database dengan id: " + id);
               } else {
                 console.log("Terjadi kesalahan saat menyimpan data ke database: " + this.status);
                 alert("Terjadi kesalahan saat menyimpan data ke database. Kode status: " + this.status);
@@ -124,52 +132,70 @@ function saveFile() {
   xhr.send(formData);
 }
 
-    function loadFile() {
-      docId = document.getElementById("id-docs").value;
-      const docRef = db.collection("docs").doc(docId);
-      docRef.get().then((doc) => {
-        if (doc.exists) {
-          console.log(`Data dokumen dengan ID ${docId}: `, doc.data());
+function loadFile() {
+  // Mengambil nilai id dari input field
+  const docId = document.getElementById("id-docs").value;
+  
+  // Melakukan request ke server untuk mendapatkan nilai id dari database menggunakan Ajax atau fetch API
+  fetch('load.php?id='+docId, {
+    method: 'GET'
+  })
+    .then(response => console.log(response.json()))
+    // .then(data => {
+    //   // Melakukan request ke database untuk mendapatkan dokumen yang terkait dengan id dari input field
+    //   const docRef = db.collection("docs").doc(docId);
+    //   docRef.get().then((doc) => {
+    //     if (doc.exists) {
+    //       console.log(`Data dokumen dengan ID ${docId}: `, doc.data());
 
-          if (doc.data().url) {
-            // var url = 'https://raw.githubusercontent.com/mozilla/pdf.js/ba2edeae/examples/learning/helloworld.pdf';
-            var pdfjsLib = window['pdfjs-dist/build/pdf'];
-            pdfjsLib.getDocument({
-              url: doc.data().url, 
-              mode: 'no-cors'
-            }).promise.then(function(pdf) {
-		        	pdf.getPage(1).then(function(page) {
-		        		const viewport = page.getViewport({scale: 1});
-		        		pdfCanvas.width = viewport.width;
-		        		pdfCanvas.height = viewport.height;
+    //       if (doc.data().url) {
+    //         var pdfCanvas = document.getElementById('pdf-canvas');
+    //         var pdfContext = pdfCanvas.getContext('2d');
+    //         var itemCanvas = document.getElementById('item-canvas');
+    //         var items;
 
-		        		itemCanvas.width = viewport.width;
-		        		itemCanvas.height = viewport.height;
+    //         var pdfjsLib = window['pdfjs-dist/build/pdf'];
+    //         pdfjsLib.getDocument({
+    //           url: doc.data().url, 
+    //           mode: 'no-cors'
+    //         }).promise.then(function(pdf) {
+    //           pdf.getPage(1).then(function(page) {
+    //             const viewport = page.getViewport({scale: 1});
+    //             pdfCanvas.width = viewport.width;
+    //             pdfCanvas.height = viewport.height;
 
-		        		page.render({
-		        			canvasContext: pdfContext,
-		        			viewport: viewport
-		        		});
+    //             itemCanvas.width = viewport.width;
+    //             itemCanvas.height = viewport.height;
 
-                items = doc.data().items;
-                console.log(items);
-		            drawItems();
-		        	});
-		        });
-          }
+    //             page.render({
+    //               canvasContext: pdfContext,
+    //               viewport: viewport
+    //             });
 
-          items = doc.data().items;
-          console.log(items);
-		      drawItems();
-        } else {
-          alert(`Dokumen dengan ID ${docId} tidak ditemukan.`);
-          console.log(`Dokumen dengan ID ${docId} tidak ditemukan.`);
-        }
-      }).catch((error) => {
-        alert("Error saat mengambil dokumen");
-        console.log(`Error saat mengambil dokumen: ${error}`);
-      });
-    }
+    //             items = doc.data().items;
+    //             console.log(items);
+    //             drawItems();
+    //           });
+    //         });
+    //       } else {
+    //         items = doc.data().items;
+    //         console.log(items);
+    //         drawItems();
+    //       }
+    //     } else {
+    //       alert(`Dokumen dengan ID ${docId} tidak ditemukan.`);
+    //       console.log(`Dokumen dengan ID ${docId} tidak ditemukan.`);
+    //     }
+    //   }).catch((error) => {
+    //     alert("Error saat mengambil dokumen");
+    //     console.log(`Error saat mengambil dokumen: ${error}`);
+    //   });
+    // })
+    .catch(error => {
+      alert("Error saat mengambil ID dari database");
+      console.log(`Error saat mengambil ID dari database: ${error}`);
+    });
+}
   </script>
   
 </body>
