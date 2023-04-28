@@ -51,4 +51,11 @@ const submenuItem = {
       <button onclick="createItem('circle')">Create Circle</button>
     </div>
   `,
+  sign: `
+    <div>
+      <input type="file" id="image-input-sign" onchange="createItem('sign-image')" accept="image/*">
+      <button onclick="createItem('sign-text')">Tulisan</button>
+      <button onclick="activeFreehand()" id="freehand-button">Gambar</button>
+    </div>
+  `,
 }

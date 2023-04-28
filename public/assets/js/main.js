@@ -17,6 +17,9 @@ let isDragging = false;
 let dragOffsetX = 0;
 let dragOffsetY = 0;
 
+var isFreehand = false;
+let freehandPath = [];
+
 itemCanvas.width = 500;
 itemCanvas.height = 800;
 pdfCanvas.width = 500;
@@ -111,7 +114,7 @@ itemCanvas.addEventListener("mousedown", function (evt) {
 		dragOffsetY = mouse.y - editingItem.y;
 
 	} else {
-		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click") {
+		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true)) {
 			startDraw(evt);
 		}
 	}
@@ -122,7 +125,7 @@ itemCanvas.addEventListener("mousemove", moveSelectedItem);
 
 itemCanvas.addEventListener("mouseup", function (evt) {
 	const selectedMenu = document.getElementById('selected').value;
-	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click")) {
+	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true))) {
 		endDraw(evt);
 	}
 	isDragging = false;
@@ -148,15 +151,22 @@ function startDraw(e) {
 
 function draw(e) {
 	if (!isDrawing) return;
-	endX = e.offsetX;
-	endY = e.offsetY;
-  var width = endX - startX;
-  var height = endY - startY;
-  itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
-	drawItems();
-  itemContext.beginPath();
-  itemContext.rect(startX, startY, width, height);
-  itemContext.stroke();
+	if (isFreehand) {
+    const x = e.offsetX;
+    const y = e.offsetY;
+
+    freehandPath.push({x: x, y: y});
+	} else {
+		endX = e.offsetX;
+		endY = e.offsetY;
+  	var width = endX - startX;
+  	var height = endY - startY;
+  	itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.heiarrayght);
+		drawItems();
+  	itemContext.beginPath();
+  	itemContext.rect(startX, startY, width, height);
+  	itemContext.stroke();
+	}
 }
 
 function endDraw(e) {
@@ -164,6 +174,10 @@ function endDraw(e) {
 	isDrawing = false;
 	if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click") {
 		showSettings({type: selectedMenu});
+	} else if (selectedMenu == "sign") {
+		createItem('sign-freehand');
+		isFreehand = false;
+		freehandPath = [];
 	}
 }
 
@@ -187,6 +201,14 @@ function checkForSelectedItem() {
 		} else if (["links", "forms", "image", "witheout", "shape", "sign-container"].includes(item.type)) {
 			var width = item.width;
 			var height = item.height;
+		} else if (item.type == "sign") {
+			if (item.sign_type == "text") {
+				var width = itemContext.measureText(item.data).width;
+				var height = 16;
+			} else if (item.sign_type == "image") {
+				var width = item.width;
+				var height = item.height;
+			}
 		} else {
 			var width = 0
 			var height = 0;
@@ -301,6 +323,26 @@ function createItem(type, x = 0, y = 0) {
 		newitem = addShape(type);
 	} else if (type == "sign-container") {
 		newitem = addSignContainer(startX, startY, endX, endY);
+	} else if (type == "sign-image") {
+		const input = document.getElementById("image-input-sign");
+		const file = input.files[0];
+		const image = new Image();
+	
+		image.onload = function() {
+			newitem = addImageSign(image);
+
+			if (newitem) {
+				items.push(newitem);
+			}
+			hideSettings();
+			drawItems();
+		};
+	
+		image.src = URL.createObjectURL(file);
+	} else if (type == "sign-text") {
+		newitem = addTextSign();
+	} else if (type == "sign-freehand") {
+		newitem = addFreehandSign(freehandPath);
 	}
 
 	if (newitem) {
@@ -434,6 +476,26 @@ function drawItems() {
 				itemContext.fillStyle = "black";
 				itemContext.fill();
 			}
+		} else if (item.type == "sign") { 
+			if (item.sign_type == "image") {
+				itemContext.drawImage(item.data, item.x, item.y, item.width, item.height);
+			} else if (item.sign_type == "text") {
+				itemContext.font = "normal normal 16px Arial";
+				itemContext.fillStyle = "#000000";
+				itemContext.textBaseline = "top";
+				itemContext.textAlign = "left";
+				itemContext.fillText(item.data, item.x, item.y);
+			} else if (item.sign_type == "freehand") {
+				itemContext.beginPath();
+				item.data.forEach(function(coord, index) {
+					if (index === 0) {
+						itemContext.moveTo(coord.x, coord.y);
+					} else {
+						itemContext.lineTo(coord.x, coord.y);
+					}
+				});
+				itemContext.stroke();
+			}
 		}
   }
 
@@ -446,4 +508,8 @@ function drawItems() {
 		itemContext.strokeStyle = "#000000";
 		itemContext.stroke();
 	}
+}
+
+function activeFreehand() {
+	isFreehand = true;
 }
