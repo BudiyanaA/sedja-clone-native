@@ -99,7 +99,7 @@ function saveFile() {
           xhrDb.setRequestHeader('Content-type', 'application/json');
 
           var baseUrl = window.location.origin;
-          var relativeUrl = baseUrl + '/sedja-clone-native/upload/' + file.name;
+          var relativeUrl = baseUrl + '/upload/' + file.name;
           var id = generateId();
 
           var data = {
@@ -134,69 +134,56 @@ function saveFile() {
 }
 
 function loadFile() {
-  // Mengambil nilai id dari input field
   const docId = document.getElementById("id-docs").value;
-  
-  // Melakukan request ke server untuk mendapatkan nilai id dari database menggunakan Ajax atau fetch API
-  fetch('load.php?id='+docId, {
-    method: 'GET'
-  })
-    .then(response => console.log(response.json()))
-    // .then(data => {
-    //   // Melakukan request ke database untuk mendapatkan dokumen yang terkait dengan id dari input field
-    //   const docRef = db.collection("docs").doc(docId);
-    //   docRef.get().then((doc) => {
-    //     if (doc.exists) {
-    //       console.log(`Data dokumen dengan ID ${docId}: `, doc.data());
+    fetch(`load.php?id=${docId}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`Dokumen dengan ID ${docId} tidak ditemukan.`);
+         }
+        return response.json();
+      })
+      .then(doc => {
+        console.log(`Data dokumen dengan ID ${docId}: `, doc);
+          if (doc.url) {
+            var pdfCanvas = document.getElementById('pdf-canvas');
+            var pdfContext = pdfCanvas.getContext('2d');
+            var itemCanvas = document.getElementById('item-canvas');
+            var pdfjsLib = window['pdfjs-dist/build/pdf'];
+            pdfjsLib.getDocument({
+              url: doc.url,
+              mode: 'no-cors'
+            }).promise.then(function(pdf) {
+              pdf.getPage(1).then(function(page) {
+                const viewport = page.getViewport({
+                  scale: 1
+                  });
+                pdfCanvas.width = viewport.width;
+                pdfCanvas.height = viewport.height;
 
-    //       if (doc.data().url) {
-    //         var pdfCanvas = document.getElementById('pdf-canvas');
-    //         var pdfContext = pdfCanvas.getContext('2d');
-    //         var itemCanvas = document.getElementById('item-canvas');
-    //         var items;
+                itemCanvas.width = viewport.width;
+                itemCanvas.height = viewport.height;
 
-    //         var pdfjsLib = window['pdfjs-dist/build/pdf'];
-    //         pdfjsLib.getDocument({
-    //           url: doc.data().url, 
-    //           mode: 'no-cors'
-    //         }).promise.then(function(pdf) {
-    //           pdf.getPage(1).then(function(page) {
-    //             const viewport = page.getViewport({scale: 1});
-    //             pdfCanvas.width = viewport.width;
-    //             pdfCanvas.height = viewport.height;
+                page.render({
+                  canvasContext: pdfContext,
+                  viewport: viewport
+                });
 
-    //             itemCanvas.width = viewport.width;
-    //             itemCanvas.height = viewport.height;
-
-    //             page.render({
-    //               canvasContext: pdfContext,
-    //               viewport: viewport
-    //             });
-
-    //             items = doc.data().items;
-    //             console.log(items);
-    //             drawItems();
-    //           });
-    //         });
-    //       } else {
-    //         items = doc.data().items;
-    //         console.log(items);
-    //         drawItems();
-    //       }
-    //     } else {
-    //       alert(`Dokumen dengan ID ${docId} tidak ditemukan.`);
-    //       console.log(`Dokumen dengan ID ${docId} tidak ditemukan.`);
-    //     }
-    //   }).catch((error) => {
-    //     alert("Error saat mengambil dokumen");
-    //     console.log(`Error saat mengambil dokumen: ${error}`);
-    //   });
-    // })
-    .catch(error => {
-      alert("Error saat mengambil ID dari database");
-      console.log(`Error saat mengambil ID dari database: ${error}`);
-    });
-}
+                items = JSON.parse(doc.items);
+                console.log(items);
+                drawItems();
+              });
+            });
+          } else {
+            items = JSON.parse(doc.items);
+            console.log(items);
+            drawItems();
+          }
+        })
+        .catch(error => {
+          alert("Error saat mengambil dokumen");
+          console.log(`Error saat mengambil dokumen: ${error}`);
+        });
+      } 
   </script>
   
 </body>
