@@ -99,6 +99,8 @@ itemCanvas.addEventListener('click', function(event) {
 		return;
 	} else if (selectedMenu == "forms") {
 		createItem("symbol", x, y);
+	} else if (selectedMenu == "anotate" && isFreehand == false) {
+		activeFreehand();
 	}
 	hideSettings();
 });
@@ -114,7 +116,7 @@ itemCanvas.addEventListener("mousedown", function (evt) {
 		dragOffsetY = mouse.y - editingItem.y;
 
 	} else {
-		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true)) {
+		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true) || (selectedMenu == "anotate" && isFreehand == true)) {
 			startDraw(evt);
 		}
 	}
@@ -125,7 +127,7 @@ itemCanvas.addEventListener("mousemove", moveSelectedItem);
 
 itemCanvas.addEventListener("mouseup", function (evt) {
 	const selectedMenu = document.getElementById('selected').value;
-	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true))) {
+	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true) || (selectedMenu == "anotate" && isFreehand == true))) {
 		endDraw(evt);
 	}
 	isDragging = false;
@@ -156,12 +158,21 @@ function draw(e) {
     const y = e.offsetY;
 
     freehandPath.push({x: x, y: y});
+		
+		itemContext.beginPath();
+		itemContext.moveTo(startX, startY);
+		itemContext.lineTo(x, y);
+		itemContext.stroke();
+
+		startX = e.offsetX;
+		startY = e.offsetY;
+	
 	} else {
 		endX = e.offsetX;
 		endY = e.offsetY;
   	var width = endX - startX;
   	var height = endY - startY;
-  	itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.heiarrayght);
+  	itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
 		drawItems();
   	itemContext.beginPath();
   	itemContext.rect(startX, startY, width, height);
@@ -176,6 +187,10 @@ function endDraw(e) {
 		showSettings({type: selectedMenu});
 	} else if (selectedMenu == "sign") {
 		createItem('sign-freehand');
+		isFreehand = false;
+		freehandPath = [];
+	} else if (selectedMenu == "anotate") {
+		createItem('anotate');
 		isFreehand = false;
 		freehandPath = [];
 	}
@@ -343,6 +358,8 @@ function createItem(type, x = 0, y = 0) {
 		newitem = addTextSign();
 	} else if (type == "sign-freehand") {
 		newitem = addFreehandSign(freehandPath);
+	} else if (type == "anotate") {
+		newitem = addAnotate(freehandPath);
 	}
 
 	if (newitem) {
@@ -354,6 +371,11 @@ function createItem(type, x = 0, y = 0) {
 
 function hideSettings() {
 	settingsPanel.innerHTML = '';
+}
+
+function undo() {
+	items.pop();
+	drawItems();
 }
 
 function drawItems() {
@@ -496,6 +518,21 @@ function drawItems() {
 				});
 				itemContext.stroke();
 			}
+		} else if (item.type == "anotate") { 
+			itemContext.strokeStyle = 'yellow';
+			itemContext.lineWidth = 10;
+			itemContext.lineJoin = 'round';
+			itemContext.lineCap = 'round';
+
+			itemContext.beginPath();
+			item.data.forEach(function(coord, index) {
+				if (index === 0) {
+					itemContext.moveTo(coord.x, coord.y);
+				} else {
+					itemContext.lineTo(coord.x, coord.y);
+				}
+			});
+			itemContext.stroke();
 		}
   }
 

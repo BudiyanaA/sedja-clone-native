@@ -58,4 +58,9 @@ const submenuItem = {
       <button onclick="activeFreehand()" id="freehand-button">Gambar</button>
     </div>
   `,
+  more: `
+    <div>
+      <button onclick="undo()">Undo</button>
+    </div>
+  `,
 }

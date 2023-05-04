@@ -63,6 +63,7 @@
   <script src="../public/assets/js/shape.js"></script>
   <script src="../public/assets/js/sign-click.js"></script>
   <script src="../public/assets/js/sign.js"></script>
+  <script src="../public/assets/js/anotate.js"></script>
   <script src="../public/assets/js/main.js"></script>
 
   <script>
