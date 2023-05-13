@@ -20,6 +20,8 @@ let dragOffsetY = 0;
 var isFreehand = false;
 let freehandPath = [];
 
+var draggingResizer = -1;
+
 itemCanvas.width = 500;
 itemCanvas.height = 800;
 pdfCanvas.width = 500;
@@ -111,9 +113,14 @@ itemCanvas.addEventListener("mousedown", function (evt) {
   checkForSelectedItem();
 
 	if (editingItem) {
-		isDragging = true;
-		dragOffsetX = mouse.x - editingItem.x;
-		dragOffsetY = mouse.y - editingItem.y;
+
+		draggingResizer = anchorHitTest(evt.offsetX, evt.offsetY);
+		if (draggingResizer < 0) {
+			isDragging = true;
+			dragOffsetX = mouse.x - editingItem.x;
+			dragOffsetY = mouse.y - editingItem.y;
+		}
+		// console.log(draggingResizer);
 
 	} else {
 		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true) || (selectedMenu == "anotate" && isFreehand == true)) {
@@ -131,6 +138,7 @@ itemCanvas.addEventListener("mouseup", function (evt) {
 		endDraw(evt);
 	}
 	isDragging = false;
+	draggingResizer = -1;
 
 }, false);
 
@@ -243,7 +251,43 @@ function checkForSelectedItem() {
 }
 
 function moveSelectedItem(evt) {
-	if (isDragging) {
+	if (editingItem && draggingResizer > -1) {
+		var mouseX = evt.offsetX;
+		var mouseY = evt.offsetY;
+
+		// resize the image
+		switch (draggingResizer) {
+			case 0:
+					//top-left
+					editingItem.x = mouseX;
+					editingItem.width = editingItem.x + editingItem.width - mouseX;
+					editingItem.y = mouseY;
+					editingItem.height = editingItem.y + editingItem.height - mouseY;
+					break;
+			case 1:
+					//top-right
+					editingItem.y = mouseY;
+					editingItem.width = mouseX - editingItem.x;
+					editingItem.height = editingItem.y + editingItem.height - mouseY;
+					break;
+			case 2:
+					//bottom-right
+					editingItem.width = mouseX - editingItem.x;
+					editingItem.height = mouseY - editingItem.y;
+					break;
+			case 3:
+					//bottom-left
+					editingItem.x = mouseX;
+					editingItem.width = editingItem.x + editingItem.width - mouseX;
+					editingItem.height = mouseY - editingItem.y;
+					break;
+		}
+
+		if(editingItem.width<25){editingItem.width=25;}
+		if(editingItem.height<25){editingItem.height=25;}
+
+		drawItems();
+	} else if (isDragging) {
 		var mousePos = getMousePos(itemCanvas, evt);
 		editingItem.x = mousePos.x - dragOffsetX;
 		editingItem.y = mousePos.y - dragOffsetY;
@@ -549,4 +593,49 @@ function drawItems() {
 
 function activeFreehand() {
 	isFreehand = true;
+}
+
+function anchorHitTest(x, y) {
+	const size = 10;
+	const position = 5;
+
+	// top-left
+	if (
+		x >= editingItem.x - position &&
+		x <= editingItem.x - position + size &&
+		y >= editingItem.y - position &&
+		y <= editingItem.y - position + size
+	) {
+		return (0);
+	}
+
+	// top-right
+	if (
+		x >= editingItem.x + editingItem.width - position &&
+		x <= editingItem.x + editingItem.width - position + size &&
+		y >= editingItem.y - position &&
+		y <= editingItem.y - position + size
+	) {
+		return (1);
+	}
+	// bottom-right
+	if (
+		x >= editingItem.x + editingItem.width - position &&
+		x <= editingItem.x + editingItem.width - position + size &&
+		y >= editingItem.y + editingItem.height - position &&
+		y <= editingItem.y + editingItem.height - position + size
+	) {
+		return (2);
+	}
+	// bottom-left
+	if (
+		x >= editingItem.x - position &&
+		x <= editingItem.x - position + size &&
+		y >= editingItem.y + editingItem.height - position &&
+		y <= editingItem.y + editingItem.height - position + size
+	) {
+		return (3);
+	}
+	return (-1);
+
 }
