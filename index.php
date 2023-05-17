@@ -31,6 +31,8 @@
   
   <div id="action"></div>
 
+  <div id="pdfContainer"></div>
+
   <div class="parent-container">
     <div class="canvas-wrapper">
       <canvas id="pdf-canvas"></canvas>

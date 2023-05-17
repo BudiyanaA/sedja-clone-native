@@ -35,36 +35,72 @@ pdfFile.addEventListener('change', function() {
 	fileReader.onload = function() {
 		const typedArray = new Uint8Array(this.result);
 		pdfjsLib.getDocument(typedArray).promise.then(function(pdf) {
-			pdf.getPage(1).then(function(page) {
-				const viewport = page.getViewport({scale: 1});
-				pdfCanvas.width = viewport.width;
-				pdfCanvas.height = viewport.height;
+			// Mengatur jumlah halaman PDF
+      var numPages = pdf.numPages;
 
-				itemCanvas.width = viewport.width;
-				itemCanvas.height = viewport.height;
+			// Loop untuk menampilkan setiap halaman PDF
+			for (var pageNum = 1; pageNum <= numPages; pageNum++) {
+				(function(pageNum) {
+					pdf.getPage(pageNum).then(function(page) {
+						const viewport = page.getViewport({scale: 1});
+						var canvas = document.createElement('canvas');
+						var context = canvas.getContext('2d');
+						canvas.width = viewport.width;
+						canvas.height = viewport.height;
+						canvas.id = 'canvas-' + pageNum;
 
-				page.render({
-					canvasContext: pdfContext,
-					viewport: viewport
-				});
-			});
+						// Menambahkan canvas ke dalam elemen container
+						// Misalnya, jika Anda memiliki elemen dengan id "pdfContainer"
+						document.getElementById('pdfContainer').appendChild(canvas);
+
+						page.render({
+							canvasContext: context,
+							viewport: viewport
+						});
+
+						canvas.addEventListener('click', function(event) {
+							canvasClickHandler(event, canvas.id);
+						});
+					});
+				})(pageNum);
+			}
+
+			// pdf.getPage(1).then(function(page) {
+			// 	const viewport = page.getViewport({scale: 1});
+			// 	pdfCanvas.width = viewport.width;
+			// 	pdfCanvas.height = viewport.height;
+
+			// 	itemCanvas.width = viewport.width;
+			// 	itemCanvas.height = viewport.height;
+
+			// 	page.render({
+			// 		canvasContext: pdfContext,
+			// 		viewport: viewport
+			// 	});
+			// });
 		});
 	};
 
 	fileReader.readAsArrayBuffer(file);
 });
 
-itemCanvas.addEventListener('click', function(event) {
+function canvasClickHandler(event, canvasId) {
+	console.log(canvasId);
+	const itemCanvas = document.getElementById(canvasId);
+	const itemContext = itemCanvas.getContext('2d');
+
 	const selectedMenu = document.getElementById('selected').value;
-  // var x = event.pageX - itemCanvas.offsetLeft;
-  // var y = event.pageY - itemCanvas.offsetTop;
 	var x = event.offsetX;
 	var y = event.offsetY;
-  for (var i = items.length - 1; i >= 0; i--) {
+
+	for (var i = items.length - 1; i >= 0; i--) {
 		console.log(items)
     var item = items[i];
     var itemX = item.x;
     var itemY = item.y;
+		
+		if (item.canvas_id != canvasId) continue;
+
 		if (item.type == "text") {
 			var itemWidth = itemContext.measureText(item.text).width;
 			var itemHeight = parseInt(item.fontSize);
@@ -84,7 +120,7 @@ itemCanvas.addEventListener('click', function(event) {
     if (x >= itemX && x <= itemX + itemWidth && y >= itemY && y <= itemY + itemHeight) {
 			editingItem = item;
 			drawItems();
-			console.log(item.type);
+			// console.log(item.type);
 			hideSettings();
 			showSettings(item);
       return;
@@ -96,16 +132,69 @@ itemCanvas.addEventListener('click', function(event) {
 		}
   }
 	if (selectedMenu == "text") {
-		createItem("text", x, y);
+		createItem(canvasId, "text", x, y);
 	} else if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" ) {
 		return;
 	} else if (selectedMenu == "forms") {
-		createItem("symbol", x, y);
+		createItem(canvasId, "symbol", x, y);
 	} else if (selectedMenu == "anotate" && isFreehand == false) {
 		activeFreehand();
 	}
 	hideSettings();
-});
+}
+
+// itemCanvas.addEventListener('click', function(event) {
+// 	const selectedMenu = document.getElementById('selected').value;
+//   // var x = event.pageX - itemCanvas.offsetLeft;
+//   // var y = event.pageY - itemCanvas.offsetTop;
+// 	var x = event.offsetX;
+// 	var y = event.offsetY;
+//   for (var i = items.length - 1; i >= 0; i--) {
+// 		console.log(items)
+//     var item = items[i];
+//     var itemX = item.x;
+//     var itemY = item.y;
+// 		if (item.type == "text") {
+// 			var itemWidth = itemContext.measureText(item.text).width;
+// 			var itemHeight = parseInt(item.fontSize);
+// 		} else if (["links", "forms", "image", "witheout", "shape", "sign-container"].includes(item.type)) {
+// 			var itemWidth = item.width;
+// 			var itemHeight = item.height;
+// 		} else if (item.type == "symbol") {
+// 			itemX = item.x - item.size;
+// 			itemY = item.y - item.size;
+// 			var itemWidth = item.size * 2;
+// 			var itemHeight = item.size * 2;
+// 		} else {
+// 			var itemWidth = 0
+// 			var itemHeight = 0;
+// 		}	
+
+//     if (x >= itemX && x <= itemX + itemWidth && y >= itemY && y <= itemY + itemHeight) {
+// 			editingItem = item;
+// 			drawItems();
+// 			console.log(item.type);
+// 			hideSettings();
+// 			showSettings(item);
+//       return;
+//     } else {
+// 			if (editingItem) {
+// 				editingItem = null;
+// 				drawItems();
+// 			}
+// 		}
+//   }
+// 	if (selectedMenu == "text") {
+// 		createItem("text", x, y);
+// 	} else if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" ) {
+// 		return;
+// 	} else if (selectedMenu == "forms") {
+// 		createItem("symbol", x, y);
+// 	} else if (selectedMenu == "anotate" && isFreehand == false) {
+// 		activeFreehand();
+// 	}
+// 	hideSettings();
+// });
 
 itemCanvas.addEventListener("mousedown", function (evt) {
   const selectedMenu = document.getElementById('selected').value;
@@ -342,7 +431,7 @@ function duplicateItem() {
   }
 }
 
-function createItem(type, x = 0, y = 0) {
+function createItem(canvasId, type, x = 0, y = 0) {
 	let newitem = null;
 	if (type == "text") {
 		newitem = addText(x, y);
@@ -367,6 +456,7 @@ function createItem(type, x = 0, y = 0) {
   	  img.onload = function() {
 				newitem = addImage(img);
 
+				newitem.canvas_id = canvasId;
 				if (newitem) {
 					items.push(newitem);
 				}
@@ -390,6 +480,7 @@ function createItem(type, x = 0, y = 0) {
 		image.onload = function() {
 			newitem = addImageSign(image);
 
+			newitem.canvas_id = canvasId;
 			if (newitem) {
 				items.push(newitem);
 			}
@@ -406,6 +497,7 @@ function createItem(type, x = 0, y = 0) {
 		newitem = addAnotate(freehandPath);
 	}
 
+	newitem.canvas_id = canvasId;
 	if (newitem) {
 		items.push(newitem);
 	}
@@ -423,9 +515,18 @@ function undo() {
 }
 
 function drawItems() {
-  itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
+  // itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
+	var canvases = document.querySelectorAll('canvas');
+	canvases.forEach(function(canvas) {
+	  var context = canvas.getContext('2d');
+	  context.clearRect(0, 0, canvas.width, canvas.height);
+	});
+
   for (var i = 0; i < items.length; i++) {
-    var item = items[i];
+		var item = items[i];
+		const itemCanvas = document.getElementById(item.canvas_id);
+		const itemContext = itemCanvas.getContext('2d');
+		
 		if (item.type == "text") {
 			itemContext.font = item.fontStyle + " " + item.fontWeight + " " + item.fontSize + " " + item.font;
 			itemContext.fillStyle = item.color;
