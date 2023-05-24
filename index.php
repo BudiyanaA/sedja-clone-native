@@ -34,12 +34,12 @@
 
   <div class="parent-container" id="pdfContainer"></div>
 
-  <div class="parent-container">
+  <!-- <div class="parent-container">
     <div class="canvas-wrapper">
       <canvas class="pdf-canvas" id="pdf-canvas"></canvas>
       <canvas class="item-canvas" id="item-canvas"></canvas>
     </div>
-  </div> 
+  </div>  -->
 
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>

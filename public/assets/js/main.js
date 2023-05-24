@@ -1,8 +1,4 @@
 const pdfFile = document.getElementById('pdf-file');
-const pdfCanvas = document.getElementById('pdf-canvas');
-const pdfContext = pdfCanvas.getContext('2d');
-const itemCanvas = document.getElementById('item-canvas');
-const itemContext = itemCanvas.getContext('2d');
 var settingsPanel = document.getElementById('action');
 // const selectedMenu = document.getElementById('selected').value;
 var items = [];
@@ -22,77 +18,73 @@ let freehandPath = [];
 
 var draggingResizer = -1;
 
-itemCanvas.width = 500;
-itemCanvas.height = 800;
-pdfCanvas.width = 500;
-pdfCanvas.height = 800;
+function renderPDFPage(page, pdfCanvas, itemCanvas) {
+	const viewport = page.getViewport({scale: 1});
+	const pdfContext = pdfCanvas.getContext('2d');
 
-pdfFile.addEventListener('change', function() {
-	const file = pdfFile.files[0];
+	pdfCanvas.width = viewport.width;
+	pdfCanvas.height = viewport.height;
+	itemCanvas.width = viewport.width;
+	itemCanvas.height = viewport.height;
+
+	const wrapper = document.createElement('div');
+	wrapper.classList.add("canvas-wrapper");
+	wrapper.appendChild(pdfCanvas);
+	wrapper.appendChild(itemCanvas);
+	document.getElementById('pdfContainer').appendChild(wrapper);
+
+	page.render({
+		canvasContext: pdfContext,
+		viewport: viewport
+	});
+
+	itemCanvas.addEventListener('click', function(event) {
+		canvasClickHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mousedown', function(event) {
+		canvasMousedownHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mousemove', function(event) {
+		canvasMousemoveDrawHandler(event, itemCanvas.id);
+		canvasMousemoveDragHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mouseup', function(event) {
+		canvasMouseupHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('dblclick', function(event) {
+		canvasDblclickHandler(event, itemCanvas.id);
+	});
+}
+
+function loadPDFFile(file) {
 	const fileReader = new FileReader();
-	console.log(file);
-
 	fileReader.onload = function() {
 		const typedArray = new Uint8Array(this.result);
 		pdfjsLib.getDocument(typedArray).promise.then(function(pdf) {
-			// Mengatur jumlah halaman PDF
-      var numPages = pdf.numPages;
+			const numPages = pdf.numPages;
+			for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+				pdf.getPage(pageNum).then(function(page) {
+					const pdfCanvas = document.createElement('canvas');
+					const itemCanvas = document.createElement('canvas');
+					const pdfCanvasId = 'pdf-canvas-' + pageNum;
+					const itemCanvasId = 'item-canvas-' + pageNum;
+					pdfCanvas.classList.add("pdf-canvas");
+					itemCanvas.classList.add("item-canvas");
+					pdfCanvas.id = pdfCanvasId;
+					itemCanvas.id = itemCanvasId;
 
-			// Loop untuk menampilkan setiap halaman PDF
-			for (var pageNum = 1; pageNum <= numPages; pageNum++) {
-				(function(pageNum) {
-					pdf.getPage(pageNum).then(function(page) {
-						const viewport = page.getViewport({scale: 1});
-						
-						const wrapper = document.createElement('div');
-						wrapper.classList.add("canvas-wrapper");
-
-						const pdfCanvas = document.createElement('canvas');
-						const pdfContext = pdfCanvas.getContext('2d');
-						pdfCanvas.width = viewport.width;
-						pdfCanvas.height = viewport.height;
-						pdfCanvas.id = 'pdf-canvas-' + pageNum;
-						pdfCanvas.classList.add("pdf-canvas");
-
-						var itemCanvas = document.createElement('canvas');
-						var itemContext = itemCanvas.getContext('2d');
-						itemCanvas.width = viewport.width;
-						itemCanvas.height = viewport.height;
-						itemCanvas.id = 'item-canvas-' + pageNum;
-						itemCanvas.classList.add("item-canvas");
-
-						wrapper.appendChild(pdfCanvas);
-						wrapper.appendChild(itemCanvas);
-						document.getElementById('pdfContainer').appendChild(wrapper);
-
-						page.render({
-							canvasContext: pdfContext,
-							viewport: viewport
-						});
-
-						itemCanvas.addEventListener('click', function(event) {
-							canvasClickHandler(event, itemCanvas.id);
-						});
-						itemCanvas.addEventListener('mousedown', function(event) {
-							canvasMousedownHandler(event, itemCanvas.id);
-						});
-						itemCanvas.addEventListener('mousemove', function(event) {
-							canvasMousemoveDrawHandler(event, itemCanvas.id);
-							canvasMousemoveDragHandler(event, itemCanvas.id);
-						});
-						itemCanvas.addEventListener('mouseup', function(event) {
-							canvasMouseupHandler(event, itemCanvas.id);
-						});
-						itemCanvas.addEventListener('dblclick', function(event) {
-							canvasDblclickHandler(event, itemCanvas.id);
-						});
-					});
-				})(pageNum);
+					renderPDFPage(page, pdfCanvas, itemCanvas);
+				});
 			}
 		});
 	};
-
 	fileReader.readAsArrayBuffer(file);
+}
+
+pdfFile.addEventListener('change', function() {
+	const file = pdfFile.files[0];
+	console.log(file);
+	loadPDFFile(file);
 });
 
 function canvasClickHandler(event, canvasId) {
@@ -102,37 +94,45 @@ function canvasClickHandler(event, canvasId) {
 
 	const selectedMenu = document.getElementById('selected').value;
 	const selectedSubMenu = document.getElementById('subselected').value;
-	var x = event.offsetX;
-	var y = event.offsetY;
+	const x = event.offsetX;
+	const y = event.offsetY;
 
-	for (var i = items.length - 1; i >= 0; i--) {
+	for (let i = items.length - 1; i >= 0; i--) {
 		console.log(items)
     var item = items[i];
     var itemX = item.x;
     var itemY = item.y;
 		
-		if (item.canvas_id != canvasId) continue;
+		if (item.canvas_id !== canvasId) continue;
 
-		if (item.type == "text") {
-			var itemWidth = itemContext.measureText(item.text).width;
-			var itemHeight = parseInt(item.fontSize);
-		} else if (["links", "forms", "image", "witheout", "shape", "sign-container"].includes(item.type)) {
-			var itemWidth = item.width;
-			var itemHeight = item.height;
-		} else if (item.type == "symbol") {
-			itemX = item.x - item.size;
-			itemY = item.y - item.size;
-			var itemWidth = item.size * 2;
-			var itemHeight = item.size * 2;
-		} else {
-			var itemWidth = 0
-			var itemHeight = 0;
-		}	
+		let itemWidth = 0;
+		let itemHeight = 0;
+
+		switch (item.type) {
+			case 'text':
+				itemWidth = itemContext.measureText(item.text).width;
+				itemHeight = parseInt(item.fontSize);
+				break;
+			case 'links':
+			case 'forms':
+			case 'image':
+			case 'witheout':
+			case 'shape':
+			case 'sign-container':
+				itemWidth = item.width;
+				itemHeight = item.height;
+				break;
+			case 'symbol':
+				itemX = item.x - item.size;
+				itemY = item.y - item.size;
+				itemWidth = item.size * 2;
+				itemHeight = item.size * 2;
+				break;
+		}
 
     if (x >= itemX && x <= itemX + itemWidth && y >= itemY && y <= itemY + itemHeight) {
 			editingItem = item;
 			drawItems();
-			// console.log(item.type);
 			hideSettings();
 			showSettings(item);
       return;
@@ -143,33 +143,47 @@ function canvasClickHandler(event, canvasId) {
 			}
 		}
   }
-	if (selectedMenu == "text") {
-		createItem(canvasId, "text", x, y);
-	} else if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" ) {
-		return;
-	} else if (selectedMenu == "forms") {
-		createItem(canvasId, "symbol", x, y);
-	} else if (selectedMenu == "anotate" && isFreehand == false) {
-		activeFreehand();
-	} else if (selectedMenu == "images") {
-		createItem(canvasId, 'image');
-	} else if (selectedMenu == "sign" && selectedSubMenu == "sign-image") {
-		createItem(canvasId, 'sign-image');
-	} else if (selectedMenu == "sign" && selectedSubMenu == "sign-text") {
-		createItem(canvasId, 'sign-text');
-	} else if (selectedMenu == "shapes" && selectedSubMenu == "box") {
-		createItem(canvasId, 'box');
-	} else if (selectedMenu == "shapes" && selectedSubMenu == "circle") {
-		createItem(canvasId, 'circle');
+
+	switch (selectedMenu) {
+		case 'text':
+			createItem(canvasId, 'text', x, y);
+			break;
+		case 'links':
+		case 'witheout':
+		case 'sign-click':
+			return;
+		case 'forms':
+			createItem(canvasId, 'symbol', x, y);
+			break;
+		case 'anotate':
+			if (isFreehand === false) {
+				activeFreehand();
+			}
+			break;
+		case 'images':
+			createItem(canvasId, 'image');
+			break;
+		case 'sign':
+			if (selectedSubMenu === 'sign-image') {
+				createItem(canvasId, 'sign-image');
+			} else if (selectedSubMenu === 'sign-text') {
+				createItem(canvasId, 'sign-text');
+			}
+			break;
+		case 'shapes':
+			if (selectedSubMenu === 'box') {
+				createItem(canvasId, 'box');
+			} else if (selectedSubMenu === 'circle') {
+				createItem(canvasId, 'circle');
+			}
+			break;
 	}
+
 	hideSettings();
 }
 
 function canvasMousedownHandler(evt, canvasId) {
-	// console.log(canvasId);
 	const itemCanvas = document.getElementById(canvasId);
-	const itemContext = itemCanvas.getContext('2d');
-
 	const selectedMenu = document.getElementById('selected').value;
 	mouse = getMousePos(itemCanvas, evt);
   checkForSelectedItem(canvasId);
@@ -184,14 +198,27 @@ function canvasMousedownHandler(evt, canvasId) {
 		}
 
 	} else {
-		if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true) || (selectedMenu == "anotate" && isFreehand == true)) {
-			startDraw(evt); //
+		switch (selectedMenu) {
+			case 'links':
+			case 'witheout':
+			case 'sign-click':
+				startDraw(evt);
+				break;
+			case 'sign':
+				if (isFreehand) {
+					startDraw(evt);
+				}
+				break;
+			case 'anotate':
+				if (isFreehand) {
+					startDraw(evt);
+				}
+				break;
 		}
 	}
 }
 
 function canvasMousemoveDrawHandler(e, canvasId) {
-	// console.log(canvasId);
 	const itemCanvas = document.getElementById(canvasId);
 	const itemContext = itemCanvas.getContext('2d');
 
@@ -213,8 +240,8 @@ function canvasMousemoveDrawHandler(e, canvasId) {
 	} else {
 		endX = e.offsetX;
 		endY = e.offsetY;
-  	var width = endX - startX;
-  	var height = endY - startY;
+  	const width = endX - startX;
+  	const height = endY - startY;
   	itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
 		drawItems();
   	itemContext.beginPath();
@@ -222,12 +249,9 @@ function canvasMousemoveDrawHandler(e, canvasId) {
   	itemContext.stroke();
 	}
 }
-// itemCanvas.addEventListener("mousemove", draw);
 
 function canvasMousemoveDragHandler(evt, canvasId) {
-	// console.log(canvasId);
 	const itemCanvas = document.getElementById(canvasId);
-	const itemContext = itemCanvas.getContext('2d');
 
 	if (editingItem && draggingResizer > -1) {
 		var mouseX = evt.offsetX;
@@ -272,15 +296,10 @@ function canvasMousemoveDragHandler(evt, canvasId) {
 		drawItems();
 	}
 }
-// itemCanvas.addEventListener("mousemove", moveSelectedItem);
 
 function canvasMouseupHandler(evt, canvasId) {
-	// console.log(canvasId);
-	const itemCanvas = document.getElementById(canvasId);
-	const itemContext = itemCanvas.getContext('2d');
-
 	const selectedMenu = document.getElementById('selected').value;
-	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand == true) || (selectedMenu == "anotate" && isFreehand == true))) {
+	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand) || (selectedMenu == "anotate" && isFreehand))) {
 		endDraw(canvasId); //
 	}
 	isDragging = false;
@@ -288,9 +307,7 @@ function canvasMouseupHandler(evt, canvasId) {
 }
 
 function canvasDblclickHandler(evt, canvasId) {
-	// console.log(canvasId);
 	const itemCanvas = document.getElementById(canvasId);
-	const itemContext = itemCanvas.getContext('2d');
 
 	mouse = getMousePos(itemCanvas, evt);
   checkForSelectedItem(canvasId);
@@ -310,16 +327,25 @@ function startDraw(e) {
 function endDraw(canvasId) {
 	const selectedMenu = document.getElementById('selected').value;
 	isDrawing = false;
-	if (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click") {
-		showSettings({type: selectedMenu, canvas_id: canvasId});
-	} else if (selectedMenu == "sign") {
-		createItem(canvasId, 'sign-freehand');
-		isFreehand = false;
-		freehandPath = [];
-	} else if (selectedMenu == "anotate") {
-		createItem(canvasId, 'anotate');
-		isFreehand = false;
-		freehandPath = [];
+
+	switch (selectedMenu) {
+		case 'links':
+		case 'witheout':
+		case 'sign-click':
+			showSettings({ type: selectedMenu, canvas_id: canvasId });
+			break;
+		case 'sign':
+			createItem(canvasId, 'sign-freehand');
+			isFreehand = false;
+			freehandPath = [];
+			break;
+		case 'anotate':
+			createItem(canvasId, 'anotate');
+			isFreehand = false;
+			freehandPath = [];
+			break;
+		default:
+			break;
 	}
 }
 
@@ -335,32 +361,42 @@ function checkForSelectedItem(canvasId) {
 	const itemCanvas = document.getElementById(canvasId);
 	const itemContext = itemCanvas.getContext('2d');
 
-	for (var i = items.length - 1; i >= 0; i--) {
-	  var item = items[i];
-	  var x = item.x;
-	  // var y = item.y - parseInt(item.fontSize);
-	  var y = item.y;
+	for (let i = items.length - 1; i >= 0; i--) {
+	  const item = items[i];
+	  const x = item.x;
+	  const y = item.y;
 
-		if (item.canvas_id != canvasId) continue;
+		if (item.canvas_id !== canvasId) continue;
 
-		if (item.type == "text") {
-			var width = itemContext.measureText(item.text).width;
-			var height = parseInt(item.fontSize);
-		} else if (["links", "forms", "image", "witheout", "shape", "sign-container"].includes(item.type)) {
-			var width = item.width;
-			var height = item.height;
-		} else if (item.type == "sign") {
-			if (item.sign_type == "text") {
-				var width = itemContext.measureText(item.data).width;
-				var height = 16;
-			} else if (item.sign_type == "image") {
-				var width = item.width;
-				var height = item.height;
-			}
-		} else {
-			var width = 0
-			var height = 0;
-		}	
+		let width = 0;
+		let height = 0;
+
+		switch (item.type) {
+			case 'text':
+				width = itemContext.measureText(item.text).width;
+				height = parseInt(item.fontSize);
+				break;
+			case 'links':
+			case 'forms':
+			case 'image':
+			case 'witheout':
+			case 'shape':
+			case 'sign-container':
+				width = item.width;
+				height = item.height;
+				break;
+			case 'sign':
+				if (item.sign_type === 'text') {
+					width = itemContext.measureText(item.data).width;
+					height = 16;
+				} else if (item.sign_type === 'image') {
+					width = item.width;
+					height = item.height;
+				}
+				break;
+			default:
+				break;
+		}
 		
 	  if (
 			mouse.x >= x &&
@@ -387,23 +423,20 @@ function deleteItem() {
 }
 
 function showSettings(item) {
-	// const selectedMenu = document.getElementById('selected').value;
-	if (item.type == "text") {
-		settingsPanel.innerHTML = generateTextSettings(item);
-	} else if (item.type == "links") {
-		settingsPanel.innerHTML = generateLinkSettings(item);
-	} else if (item.type == "symbol") {
-		settingsPanel.innerHTML = generateSymbolSettings(item);
-	} else if (item.type == "forms") {
-		settingsPanel.innerHTML = generateFormSettings(item);
-	} else if (item.type == "image") {
-		settingsPanel.innerHTML = generateImageSettings(item);
-	} else if (item.type == "witheout") {
-		settingsPanel.innerHTML = generateWitheoutSettings(item);
-	} else if (item.type == "shape") {
-		settingsPanel.innerHTML = generateShapeSettings(item);
-	} else if (item.type == "sign-click") {
-		settingsPanel.innerHTML = generateSignClickSettings(item);
+	const settingsMapping = {
+		text: generateTextSettings,
+		links: generateLinkSettings,
+		symbol: generateSymbolSettings,
+		forms: generateFormSettings,
+		image: generateImageSettings,
+		witheout: generateWitheoutSettings,
+		shape: generateShapeSettings,
+		'sign-click': generateSignClickSettings
+	};
+
+	const generateSettings = settingsMapping[item.type];
+	if (generateSettings) {
+		settingsPanel.innerHTML = generateSettings(item);
 	}
 }
 
@@ -423,30 +456,51 @@ function duplicateItem() {
 }
 
 function createItem(canvasId, type, x = 0, y = 0) {
-	let newitem = null;
-	if (type == "text") {
-		newitem = addText(x, y);
-	} else if (type == "links") {
-		newitem = addLink(startX, startY, endX, endY) ;
-	} else if (type == "symbol") {
-		// newitem = addSymbol(x, y);
-		newitem = addForm(x, y);
-	} else if (["textbox", "textarea", "radio", "checkbox"].includes(type)) {
-		// newitem = addForm(type);
-	} else if (type == "image") {
-		const input = document.getElementById("image-input");
-  	const file = input.files[0];
+	const itemMapping = {
+		text: () => addText(x, y),
+		links: () => addLink(startX, startY, endX, endY),
+		symbol: () => addForm(x, y),
+		textbox: () => addForm(type),
+		textarea: () => addForm(type),
+		radio: () => addForm(type),
+		checkbox: () => addForm(type),
+		image: () => {
+			const input = document.getElementById("image-input");
+			const file = input.files[0];
 
-  	if (!file.type.match("image.*")) {
-  	  alert("Only image files are allowed.");
-  	  return;
-  	}
+			if (!file.type.match("image.*")) {
+				alert("Only image files are allowed.");
+				return;
+			}
 
-  	const reader = new FileReader();
-  	reader.onload = function(e) {
-  	  const img = new Image();
-  	  img.onload = function() {
-				newitem = addImage(img);
+			const reader = new FileReader();
+			reader.onload = function (e) {
+				const img = new Image();
+				img.onload = function () {
+					const newitem = addImage(img);
+
+					newitem.canvas_id = canvasId;
+					if (newitem) {
+						items.push(newitem);
+					}
+					hideSettings();
+					drawItems();
+				};
+				img.src = e.target.result;
+			};
+			reader.readAsDataURL(file);
+		},
+		witheout: () => addWitheout(startX, startY, endX, endY),
+		box: () => addShape(type),
+		circle: () => addShape(type),
+		"sign-container": () => addSignContainer(startX, startY, endX, endY),
+		"sign-image": () => {
+			const input = document.getElementById("image-input-sign");
+			const file = input.files[0];
+			const image = new Image();
+
+			image.onload = function () {
+				const newitem = addImageSign(image);
 
 				newitem.canvas_id = canvasId;
 				if (newitem) {
@@ -454,47 +508,25 @@ function createItem(canvasId, type, x = 0, y = 0) {
 				}
 				hideSettings();
 				drawItems();
-  	  };
-  	  img.src = e.target.result;
-  	};
-  	reader.readAsDataURL(file);
-	} else if (type == "witheout") {
-		newitem = addWitheout(startX, startY, endX, endY);
-	} else if (type == "box" || type == "circle") {
-		newitem = addShape(type);
-	} else if (type == "sign-container") {
-		newitem = addSignContainer(startX, startY, endX, endY);
-	} else if (type == "sign-image") {
-		const input = document.getElementById("image-input-sign");
-		const file = input.files[0];
-		const image = new Image();
-	
-		image.onload = function() {
-			newitem = addImageSign(image);
+			};
 
-			newitem.canvas_id = canvasId;
-			if (newitem) {
-				items.push(newitem);
-			}
-			hideSettings();
-			drawItems();
-		};
-	
-		image.src = URL.createObjectURL(file);
-	} else if (type == "sign-text") {
-		newitem = addTextSign();
-	} else if (type == "sign-freehand") {
-		newitem = addFreehandSign(freehandPath);
-	} else if (type == "anotate") {
-		newitem = addAnotate(freehandPath);
-	}
+			image.src = URL.createObjectURL(file);
+		},
+		"sign-text": () => addTextSign(),
+		"sign-freehand": () => addFreehandSign(freehandPath),
+		anotate: () => addAnotate(freehandPath),
+	};
 
-	newitem.canvas_id = canvasId;
-	if (newitem) {
-		items.push(newitem);
+	const createItemFunc = itemMapping[type];
+	if (createItemFunc) {
+		const newItem = createItemFunc();
+		newItem.canvas_id = canvasId;
+		if (newItem) {
+			items.push(newItem);
+		}
+		hideSettings();
+		drawItems();
 	}
-	hideSettings();
-	drawItems();
 }
 
 function hideSettings() {
@@ -507,25 +539,26 @@ function undo() {
 }
 
 function drawItems() {
-  // itemContext.clearRect(0, 0, itemCanvas.width, itemCanvas.height);
 	var canvases = document.querySelectorAll('.item-canvas');
 	canvases.forEach(function(canvas) {
 	  var context = canvas.getContext('2d');
 	  context.clearRect(0, 0, canvas.width, canvas.height);
 	});
 
-  for (var i = 0; i < items.length; i++) {
-		var item = items[i];
+  for (let i = 0; i < items.length; i++) {
+		let item = items[i];
 		const itemCanvas = document.getElementById(item.canvas_id);
 		const itemContext = itemCanvas.getContext('2d');
 		
-		if (item.type == "text") {
+		switch (item.type) {
+		case "text":
 			itemContext.font = item.fontStyle + " " + item.fontWeight + " " + item.fontSize + " " + item.font;
 			itemContext.fillStyle = item.color;
 			itemContext.textBaseline = "top";
 			itemContext.textAlign = "left";
 			itemContext.fillText(item.text, item.x, item.y);
-		} else if (item.type == "links") {
+			break;
+		case "links":
 			itemContext.beginPath();
 			itemContext.rect(item.x, item.y, item.width, item.height);
 			itemContext.fillStyle = "rgba(0, 0, 255, 0.1)";
@@ -533,74 +566,100 @@ function drawItems() {
 			itemContext.strokeStyle = "blue";
 			itemContext.stroke();
 
-			if (item.link_type === "external") {
+			var linkLabel, linkText;
+      switch (item.link_type) {
+        case "external":
+          linkLabel = "External Link";
+          linkText = item.link;
+          break;
+        case "email":
+          linkLabel = "Email Link";
+          linkText = item.link;
+          break;
+        case "phone":
+          linkLabel = "Phone Link";
+          linkText = item.link;
+          break;
+        case "pdf":
+          linkLabel = "Internal PDF Link";
+          break;
+      }
+
+			if (linkLabel) {
 				itemContext.font = "12px Arial";
 				itemContext.fillStyle = "blue";
-				itemContext.fillText("External Link", item.x + 5, item.y + 15);
-				itemContext.fillText(item.link, item.x + 5, item.y + 30);
-			} else if (item.link_typ === "email") {
-				itemContext.font = "12px Arial";
-				itemContext.fillStyle = "blue";
-				itemContext.fillText("Email Link", item.x + 5, item.y + 15);
-				itemContext.fillText(item.link, item.x + 5, item.y + 30);
-			} else if (item.link_typ === "phone") {
-				itemContext.font = "12px Arial";
-				itemContext.fillStyle = "blue";
-				itemContext.fillText("Phone Link", item.x + 5, item.y + 15);
-				itemContext.fillText(item.link, item.x + 5, item.y + 30);
-			} else if (item.link_typ === "pdf") {
-				itemContext.font = "12px Arial";
-				itemContext.fillStyle = "blue";
-				itemContext.fillText("Internal PDF Link", item.x + 5, item.y + 15);
+				itemContext.fillText(linkLabel, item.x + 5, item.y + 15);
 			}
-		} else if (item.type == "symbol") {
+			if (linkText) {
+				itemContext.fillText(linkText, item.x + 5, item.y + 30);
+			}
+
+			break;
+		case "symbol":
 			itemContext.save();
 			itemContext.translate(item.x, item.y);
 			itemContext.rotate(item.rotation * Math.PI / 180);
 			itemContext.beginPath();
 
-			if (item.symbol_type === "check") {
-				itemContext.moveTo(-item.size/2, 0);
-				itemContext.lineTo(-item.size/6, item.size/3);
-				itemContext.lineTo(item.size/2, -item.size/3);
-			} else if (item.symbol_type === "cross") {
-				itemContext.moveTo(-item.size/2, -item.size/2);
-				itemContext.lineTo(item.size/2, item.size/2);
-				itemContext.moveTo(item.size/2, -item.size/2);
-				itemContext.lineTo(-item.size/2, item.size/2);
-			} else if (item.symbol_type === "dot") {
-				itemContext.arc(0, 0, item.size/2, 0, 2*Math.PI);
-				itemContext.fill();
+			switch (item.symbol_type) {
+				case "check":
+					itemContext.moveTo(-item.size/2, 0);
+					itemContext.lineTo(-item.size/6, item.size/3);
+					itemContext.lineTo(item.size/2, -item.size/3);
+					break;
+				case "cross":
+					itemContext.moveTo(-item.size/2, -item.size/2);
+					itemContext.lineTo(item.size/2, item.size/2);
+					itemContext.moveTo(item.size/2, -item.size/2);
+					itemContext.lineTo(-item.size/2, item.size/2);
+					break;
+				case "dot":
+					itemContext.arc(0, 0, item.size/2, 0, 2*Math.PI);
+					itemContext.fill();
+					break;
 			}
 
 			itemContext.stroke();
 			itemContext.restore();
-		} else if (item.type == "forms") {
+		case "forms":
 			itemContext.beginPath();
 			itemContext.rect(item.x, item.y, item.width, item.height);
 			itemContext.strokeStyle = item.borderColor;
 			itemContext.stroke();
 
-			if (item.form_type === "textbox" || item.form_type === "textarea") {
-				itemContext.textAlign = item.textAlignment;
-				itemContext.font = item.fontSize + 'px Arial';
+			let formText;
+			switch (item.form_type) {
+				case "textbox":
+				case "textarea":
+					itemContext.textAlign = item.textAlignment;
+					itemContext.font = item.fontSize + 'px Arial';
+					if (item.form_type === "textarea") {
+						formText = 'Textarea';
+					}
+					break;
+				case "radio":
+					itemContext.arc(item.x + 10, item.y + 10, 5, 0, 2 * Math.PI);
+					itemContext.stroke();
+					formText = 'Radio Button';
+					break;
+				case "checkbox":
+					itemContext.rect(item.x + 5, item.y + 5, 10, 10);
+					itemContext.stroke();
+					formText = 'Checkbox Button';
+					break;
+				default:
+					formText = 'Textbox';
+					break;
 			}
-			if (item.form_type === "textarea") {
-				itemContext.fillText('Textarea', item.x + 10, item.y + 20);
-			} else if (item.form_type === "radio") {
-				itemContext.arc(item.x + 10, item.y + 10, 5, 0, 2 * Math.PI);
-				itemContext.stroke();
-				itemContext.fillText('Radio Button', item.x + 20, item.y + 15);
-			} else if (item.form_type === "checkbox") {
-				itemContext.rect(item.x + 5, item.y + 5, 10, 10);
-				itemContext.stroke();
-				itemContext.fillText('Checkbox Button', item.x + 20, item.y + 15);
-			} else {
-				itemContext.fillText('Textbox', item.x + 10, item.y + 15);
+
+			if (formText) {
+				itemContext.fillText(formText, item.x + 10, item.y + 15);
 			}
-		} else if (item.type == "image") {
+			break;
+		case "image":
 			itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
-		} else if (item.type == "witheout") {
+			break;
+		case "witheout":
 			itemContext.beginPath();
 			itemContext.rect(item.x, item.y, item.width, item.height);
 			itemContext.fillStyle = item.backgroundColor;
@@ -608,7 +667,8 @@ function drawItems() {
 			itemContext.lineWidth = item.borderWidth;
 			itemContext.strokeStyle = item.borderColor;
 			itemContext.stroke();
-		} else if (item.type == "shape") {
+			break;
+		case "shape":
 			itemContext.beginPath();
 			if (item.shape_type === "box") {
 				itemContext.rect(item.x, item.y, item.width, item.height);
@@ -620,7 +680,8 @@ function drawItems() {
 			itemContext.stroke();
 			itemContext.fillStyle = item.backgroundColor;
 			itemContext.fill();
-		} else if (item.type == "sign-container") {
+			break;
+		case "sign-container":
 			itemContext.beginPath();
 			itemContext.rect(item.x, item.y, item.width, item.height);
 			itemContext.fillStyle = item.backgroundColor;
@@ -635,7 +696,8 @@ function drawItems() {
 				itemContext.fillStyle = "black";
 				itemContext.fill();
 			}
-		} else if (item.type == "sign") { 
+			break;
+		case "sign":
 			if (item.sign_type == "image") {
 				itemContext.drawImage(item.data, item.x, item.y, item.width, item.height);
 			} else if (item.sign_type == "text") {
@@ -655,7 +717,8 @@ function drawItems() {
 				});
 				itemContext.stroke();
 			}
-		} else if (item.type == "anotate") { 
+			break;
+		case "anotate":
 			itemContext.strokeStyle = 'yellow';
 			itemContext.lineWidth = 10;
 			itemContext.lineJoin = 'round';
@@ -670,18 +733,19 @@ function drawItems() {
 				}
 			});
 			itemContext.stroke();
+			break;
+		}
+
+		if (editingItem) {
+			itemContext.beginPath();
+			itemContext.rect(editingItem.x-5, editingItem.y-5, 10, 10);
+			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y-5, 10, 10);
+			itemContext.rect(editingItem.x-5, editingItem.y+editingItem.height-5, 10, 10);
+			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y+editingItem.height-5, 10, 10);
+			itemContext.strokeStyle = "#000000";
+			itemContext.stroke();
 		}
   }
-
-	if (editingItem) {
-		itemContext.beginPath();
-		itemContext.rect(editingItem.x-5, editingItem.y-5, 10, 10);
-		itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y-5, 10, 10);
-		itemContext.rect(editingItem.x-5, editingItem.y+editingItem.height-5, 10, 10);
-		itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y+editingItem.height-5, 10, 10);
-		itemContext.strokeStyle = "#000000";
-		itemContext.stroke();
-	}
 }
 
 function activeFreehand() {
