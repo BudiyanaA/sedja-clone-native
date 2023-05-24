@@ -691,18 +691,26 @@ function drawItems() {
 			itemContext.stroke();
 
 			if (item.signed) {
-				itemContext.beginPath();
-				itemContext.arc(item.x + item.width/2, item.y + item.height/2, item.width/4, 0, 2 * Math.PI);
-				itemContext.fillStyle = "black";
-				itemContext.fill();
-			}
+				var uploadedImage = document.getElementById('file-input').files[0];
+				var img = new Image();
+				var reader = new FileReader();
+			  
+				reader.onload = function(e) {
+				  img.onload = function() {
+					itemContext.drawImage(img, item.x, item.y, item.width, item.height);
+				  };
+				  img.src = e.target.result;
+				}
+			  
+				reader.readAsDataURL(uploadedImage);
+			  }
 			break;
 		case "sign":
 			if (item.sign_type == "image") {
 				itemContext.drawImage(item.data, item.x, item.y, item.width, item.height);
 			} else if (item.sign_type == "text") {
 				itemContext.font = "normal normal 16px Arial";
-				itemContext.fillStyle = "#000000";
+				itemContext.fillStyle = "#FFFF00";
 				itemContext.textBaseline = "top";
 				itemContext.textAlign = "left";
 				itemContext.fillText(item.data, item.x, item.y);
@@ -742,11 +750,26 @@ function drawItems() {
 			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y-5, 10, 10);
 			itemContext.rect(editingItem.x-5, editingItem.y+editingItem.height-5, 10, 10);
 			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y+editingItem.height-5, 10, 10);
-			itemContext.strokeStyle = "#000000";
+			itemContext.strokeStyle = "#FFFF00";
 			itemContext.stroke();
 		}
   }
 }
+
+function uploadImage() {
+	const fileInput = document.getElementById('file-input');
+	const uploadedImage = document.getElementById('uploaded-image');
+  
+	const file = fileInput.files[0];
+	const reader = new FileReader();
+  
+	reader.onload = function(e) {
+	  uploadedImage.src = e.target.result;
+	}
+  
+	reader.readAsDataURL(file);
+  }
+  
 
 function activeFreehand() {
 	isFreehand = true;

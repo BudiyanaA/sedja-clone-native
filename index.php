@@ -4,6 +4,12 @@
 	<title>Upload dan Tampil PDF di Canvas</title>
   <link rel="stylesheet" href="../public/assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+  /* Menyembunyikan form secara default */
+  #form-container {
+    display: none;
+  }
+</style>
 </head>
 <body>
   <div style="margin: auto;">
@@ -26,6 +32,14 @@
     <button class="btn-menu" value="sign-click">Sign-Click</button>
   </div><br>
   <div id="submenu"></div>
+  <br>
+  <div id="form-container">
+  <form action="submit-form.php" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" id="file-input">
+    <button type="button" onclick="uploadImage()">Upload</button>
+  </form>
+  <!-- <img id="uploaded-image" src="" alt="Uploaded Image"> -->
+</div>
 
   <input type="hidden" name="selected" id="selected" readonly>
   <input type="hidden" name="subselected" id="subselected" readonly>
@@ -70,6 +84,20 @@
   <script src="../public/assets/js/main.js"></script>
 
   <script>
+    function uploadImage() {
+  const fileInput = document.getElementById('file-input');
+  const uploadedImage = document.getElementById('uploaded-image');
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  // reader.onload = function(e) {
+  //   uploadedImage.src = e.target.result;
+  // }
+
+  reader.readAsDataURL(file);
+}
+
     function generateId() {
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   var id = '';
@@ -188,6 +216,61 @@ function loadFile() {
         });
       } 
   </script>
-  
+  <script>
+    // Mendapatkan elemen tombol menu
+    const menuButtons = document.querySelectorAll('.btn-menu');
+    // Mendapatkan elemen container form
+    const formContainer = document.getElementById('form-container');
+
+    // Mendefinisikan fungsi untuk menampilkan atau menyembunyikan form
+    function toggleForm() {
+      const buttonValue = this.value;
+
+      // Menyembunyikan form jika tombol selain "Sign-Click" diklik
+      if (buttonValue !== 'sign-click') {
+        formContainer.style.display = 'none';
+      }
+
+      // Menampilkan form jika tombol "Sign-Click" diklik
+      if (buttonValue === 'sign-click') {
+        formContainer.style.display = 'block';
+      }
+    }
+
+    // Menambahkan event listener pada setiap tombol menu
+    menuButtons.forEach((button) => {
+      button.addEventListener('click', toggleForm);
+    });
+
+    // Mendapatkan elemen input file
+    const fileInput = document.querySelector('input[type="file"]');
+
+    // Menambahkan event listener pada double click pada fungsi addSignContainer
+    formContainer.addEventListener('dblclick', function() {
+      // Mendapatkan file yang dipilih
+      const file = fileInput.files[0];
+
+      // Memeriksa apakah ada file yang dipilih
+      if (file) {
+        // Membuat objek FileReader
+        const reader = new FileReader();
+
+        // Mengatur callback ketika pembacaan file selesai
+        reader.onload = function(event) {
+          // Membuat elemen gambar baru
+          const image = document.createElement('img');
+          // Mengatur sumber gambar dari data yang dibaca
+          image.src = event.target.result;
+
+          // Menambahkan gambar ke dalam elemen form-container
+          formContainer.innerHTML = '';
+          formContainer.appendChild(image);
+        };
+
+        // Membaca data gambar sebagai URL data
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
 </body>
 </html>
