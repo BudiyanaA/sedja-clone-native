@@ -32,7 +32,7 @@ function addWitheout(startX, startY, endX, endY) {
       <input value='${item.backgroundColor}' type="color" id="background-color-witheout" oninput="changeSelectedWitheout()" value="#ffffff">
     </div>
     <div class="form-group">
-      <button onclick="createItem('witheout')">Create Witheout</button>
+      <button onclick="createItem('${item.canvas_id}', 'witheout')">Create Witheout</button>
     </div>
     <div class="form-group">
       <button onclick="duplicateItem()">Duplicate Selected</button>

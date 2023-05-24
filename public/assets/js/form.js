@@ -8,10 +8,12 @@
  */
 
 let symbol = null;
+let form = null;
 let size = 50;
 let rotation = 0;
 
 function addSymbol(x, y) {
+  // setForm(null);
   if (symbol != null) {
     var item = {
       x: x,
@@ -29,6 +31,11 @@ function addSymbol(x, y) {
 function setSymbol(type) {
   symbol = type;
 }
+
+// function setForm(type) {
+//   symbol = null;
+//   form = type;
+// }
 
 function generateSymbolSettings(item) {
 	const html = `
@@ -95,6 +102,7 @@ function generateFormSettings(item) {
   return html;
 }
 
+// TODO: make change attribute item
 function changeSizeForm() {
   if (editingItem) {
     let width = document.getElementById('size-width-form').value;
@@ -129,15 +137,15 @@ function setFontSizeForm() {
   }
 }
 
-function addForm(type) {
-  setSymbol(null);
+function addForm(x, y) {
+  if (symbol == null) return null;
   var item;
-  switch (type) {
+  switch (symbol) {
 		case "textbox":
       item = {
         form_type: 'textbox',
-        x: 50,
-        y: 50,
+        x: x,
+        y: y,
         width: 150,
         height: 20,
         borderColor: '#000000',
@@ -149,8 +157,8 @@ function addForm(type) {
     case "textarea":
       item = {
         form_type: 'textarea',
-        x: 50,
-        y: 100,
+        x: x,
+        y: y,
         width: 200,
         height: 100,
         borderColor: '#000000',
@@ -162,8 +170,8 @@ function addForm(type) {
     case "radio":
       item = {
         form_type: 'radio',
-        x: 50,
-        y: 250,
+        x: x,
+        y: y,
         width: 20,
         height: 20,
         borderColor: '#000000',
@@ -175,8 +183,8 @@ function addForm(type) {
     case "checkbox":
       item = {
         form_type: 'checkbox',
-        x: 50,
-        y: 300,
+        x: x,
+        y: y,
         width: 20,
         height: 20,
         borderColor: '#000000',
@@ -185,7 +193,15 @@ function addForm(type) {
         type: 'forms'
       }
       break;
-    default:
+    default: //check, cross, dot
+      item = {
+        x: x,
+        y: y,
+        rotation: 0, 
+        size: 50, 
+        symbol_type: symbol, 
+        type: "symbol",
+      };
       break;
   }
 

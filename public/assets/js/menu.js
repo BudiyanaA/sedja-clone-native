@@ -1,8 +1,10 @@
 const menu = document.querySelectorAll('.btn-menu');
 const submenu = document.getElementById('submenu');
+const subselected = document.querySelector('#subselected');
 
 menu.forEach(item => {
   item.addEventListener('click', () => {
+    subselected.value = "";
     if (!item.classList.contains('active')) {
       menu.forEach(btn => {
         btn.classList.remove('active');
@@ -24,6 +26,15 @@ menu.forEach(item => {
   });
 });
 
+function setSelectedSubmenu(value) {
+  const subselected = document.querySelector('#subselected');
+  if (subselected.value != value) {
+    subselected.value = value;
+  } else {
+    subselected.value = "";
+  }
+}
+
 const submenuItem = {
   forms: `
     <div>
@@ -32,29 +43,30 @@ const submenuItem = {
       <button id="dotButton" onclick="setSymbol('dot')"><i class="fas fa-circle"></i></button>
     </div>
     <div>
-      <button onclick="createItem('textbox')">Add Textbox</button>
-	    <button onclick="createItem('textarea')">Add Textarea</button>
-	    <button onclick="createItem('radio')">Add Radio Button</button>
-	    <button onclick="createItem('checkbox')">Add Checkbox Button</button>
+      <button onclick="setSymbol('textbox')">Add Textbox</button>
+	    <button onclick="setSymbol('textarea')">Add Textarea</button>
+	    <button onclick="setSymbol('radio')">Add Radio Button</button>
+	    <button onclick="setSymbol('checkbox')">Add Checkbox Button</button>
     </div>
   `,
   images:  `
     <input type="file" id="image-input">
-    <button onclick="createItem('image')">Add Image</button>
+    <!-- <button onclick="createItem('image')">Add Image</button> -->
     <div>
       <ul id="image-list"></ul>
     </div>
   `,
   shapes: `
     <div>
-      <button onclick="createItem('box')">Create Box</button>
-      <button onclick="createItem('circle')">Create Circle</button>
+      <button onclick="setSelectedSubmenu('box')">Create Box</button>
+      <button onclick="setSelectedSubmenu('circle')">Create Circle</button>
     </div>
   `,
   sign: `
     <div>
-      <input type="file" id="image-input-sign" onchange="createItem('sign-image')" accept="image/*">
-      <button onclick="createItem('sign-text')">Tulisan</button>
+      <input type="file" id="image-input-sign" accept="image/*">
+      <button onclick="setSelectedSubmenu('sign-image')">File</button>
+      <button onclick="setSelectedSubmenu('sign-text')">Tulisan</button>
       <button onclick="activeFreehand()" id="freehand-button">Gambar</button>
     </div>
   `,

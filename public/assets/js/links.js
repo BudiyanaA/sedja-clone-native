@@ -41,7 +41,7 @@ function addLink(startX, startY, endX, endY) {
         <small style="color:red" id="link-url-error"></small>
       </div>
       <div class="form-group">
-        <button onclick="createItem('links')">Create Link</button>
+        <button onclick="createItem('${item.canvas_id}', 'links')">Create Link</button>
       </div>
       <div class="form-group">
         <button onclick="deleteItem()">Delete Link</button>

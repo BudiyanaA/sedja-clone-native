@@ -21,7 +21,7 @@ function addSignContainer(startX, startY, endX, endY) {
   function generateSignClickSettings(item) {
       const html = `
       <div class="form-group">
-        <button onclick="createItem('sign-container')">Create Container</button>
+        <button onclick="createItem('${item.canvas_id}', 'sign-container')">Create Container</button>
       </div>
     `;
     return html;
