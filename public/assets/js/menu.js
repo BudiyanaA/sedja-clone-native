@@ -75,4 +75,7 @@ const submenuItem = {
       <button onclick="undo()">Undo</button>
     </div>
   `,
+  "sign-click": `
+    <input type="file" name="file" id="sign-image-input">
+  ` 
 }

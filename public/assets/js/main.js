@@ -310,10 +310,29 @@ function canvasDblclickHandler(evt, canvasId) {
 	const itemCanvas = document.getElementById(canvasId);
 
 	mouse = getMousePos(itemCanvas, evt);
-  checkForSelectedItem(canvasId);
+  	checkForSelectedItem(canvasId);
 
 	if (editingItem && editingItem.type == "sign-container") {
-		editingItem.signed = true;
+		const input = document.getElementById("sign-image-input");
+		const file = input.files[0];
+
+		if (!file.type.match("image.*")) {
+			alert("Only image files are allowed.");
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = function (e) {
+			const img = new Image();
+			img.onload = function () {
+				editingItem.signed = true;
+				editingItem.src = img;
+				drawItems();
+			};
+			img.src = e.target.result;
+		};
+		reader.readAsDataURL(file);
+
 		drawItems();
 	}
 }
@@ -691,19 +710,8 @@ function drawItems() {
 			itemContext.stroke();
 
 			if (item.signed) {
-				var uploadedImage = document.getElementById('file-input').files[0];
-				var img = new Image();
-				var reader = new FileReader();
-			  
-				reader.onload = function(e) {
-				  img.onload = function() {
-					itemContext.drawImage(img, item.x, item.y, item.width, item.height);
-				  };
-				  img.src = e.target.result;
-				}
-			  
-				reader.readAsDataURL(uploadedImage);
-			  }
+				itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
+			}
 			break;
 		case "sign":
 			if (item.sign_type == "image") {
@@ -754,22 +762,7 @@ function drawItems() {
 			itemContext.stroke();
 		}
   }
-}
-
-function uploadImage() {
-	const fileInput = document.getElementById('file-input');
-	const uploadedImage = document.getElementById('uploaded-image');
-  
-	const file = fileInput.files[0];
-	const reader = new FileReader();
-  
-	reader.onload = function(e) {
-	  uploadedImage.src = e.target.result;
-	}
-  
-	reader.readAsDataURL(file);
-  }
-  
+} 
 
 function activeFreehand() {
 	isFreehand = true;
