@@ -149,33 +149,64 @@ function loadFile() {
       .then(doc => {
         console.log(`Data dokumen dengan ID ${docId}: `, doc);
           if (doc.url) {
-            var pdfCanvas = document.getElementById('pdf-canvas');
-            var pdfContext = pdfCanvas.getContext('2d');
-            var itemCanvas = document.getElementById('item-canvas');
             var pdfjsLib = window['pdfjs-dist/build/pdf'];
             pdfjsLib.getDocument({
               url: doc.url,
               mode: 'no-cors'
             }).promise.then(function(pdf) {
-              pdf.getPage(1).then(function(page) {
-                const viewport = page.getViewport({
-                  scale: 1
+              const numPages = pdf.numPages;
+              for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+                pdf.getPage(pageNum).then(function(page) {
+                  const pdfCanvas = document.createElement('canvas');
+					        const itemCanvas = document.createElement('canvas');
+					        const pdfCanvasId = 'pdf-canvas-' + pageNum;
+					        const itemCanvasId = 'item-canvas-' + pageNum;
+					        pdfCanvas.classList.add("pdf-canvas");
+					        itemCanvas.classList.add("item-canvas");
+					        pdfCanvas.id = pdfCanvasId;
+					        itemCanvas.id = itemCanvasId;
+
+                  const viewport = page.getViewport({scale: 1});
+	                const pdfContext = pdfCanvas.getContext('2d');
+
+                  pdfCanvas.width = viewport.width;
+                  pdfCanvas.height = viewport.height;
+                  itemCanvas.width = viewport.width;
+                  itemCanvas.height = viewport.height;
+
+                  const wrapper = document.createElement('div');
+	                wrapper.classList.add("canvas-wrapper");
+	                wrapper.appendChild(pdfCanvas);
+	                wrapper.appendChild(itemCanvas);
+	                document.getElementById('pdfContainer').appendChild(wrapper);
+
+                  page.render({
+                    canvasContext: pdfContext,
+                    viewport: viewport
                   });
-                pdfCanvas.width = viewport.width;
-                pdfCanvas.height = viewport.height;
 
-                itemCanvas.width = viewport.width;
-                itemCanvas.height = viewport.height;
+                  itemCanvas.addEventListener('click', function(event) {
+		canvasClickHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mousedown', function(event) {
+		canvasMousedownHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mousemove', function(event) {
+		canvasMousemoveDrawHandler(event, itemCanvas.id);
+		canvasMousemoveDragHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('mouseup', function(event) {
+		canvasMouseupHandler(event, itemCanvas.id);
+	});
+	itemCanvas.addEventListener('dblclick', function(event) {
+		canvasDblclickHandler(event, itemCanvas.id);
+	});
 
-                page.render({
-                  canvasContext: pdfContext,
-                  viewport: viewport
+                  items = JSON.parse(doc.items);
+                  console.log(items);
+                  drawItems();
                 });
-
-                items = JSON.parse(doc.items);
-                console.log(items);
-                drawItems();
-              });
+              }
             });
           } else {
             items = JSON.parse(doc.items);
