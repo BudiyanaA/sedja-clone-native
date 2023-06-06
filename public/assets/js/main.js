@@ -191,6 +191,7 @@ function canvasMousedownHandler(evt, canvasId) {
 	if (editingItem) {
 
 		draggingResizer = anchorHitTest(evt.offsetX, evt.offsetY); //
+		console.log(draggingResizer);
 		if (draggingResizer < 0) {
 			isDragging = true;
 			dragOffsetX = mouse.x - editingItem.x;
@@ -349,6 +350,16 @@ function endDraw(canvasId) {
 
 	switch (selectedMenu) {
 		case 'links':
+			var text = prompt("Masukkan teks:");
+			if (text != null) {
+				showSettings({ 
+					type: selectedMenu, 
+					canvas_id: canvasId, 
+					link: text 
+				});
+				createItem(canvasId, 'links');
+			}
+			break;
 		case 'witheout':
 		case 'sign-click':
 			showSettings({ type: selectedMenu, canvas_id: canvasId });
@@ -735,8 +746,8 @@ function drawItems() {
 			}
 			break;
 		case "anotate":
-			itemContext.strokeStyle = 'yellow';
-			itemContext.lineWidth = 10;
+			itemContext.strokeStyle = item.color;
+			itemContext.lineWidth = item.width;
 			itemContext.lineJoin = 'round';
 			itemContext.lineCap = 'round';
 
@@ -754,11 +765,12 @@ function drawItems() {
 
 		if (editingItem) {
 			itemContext.beginPath();
-			itemContext.rect(editingItem.x-5, editingItem.y-5, 10, 10);
-			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y-5, 10, 10);
-			itemContext.rect(editingItem.x-5, editingItem.y+editingItem.height-5, 10, 10);
-			itemContext.rect(editingItem.x+editingItem.width-5, editingItem.y+editingItem.height-5, 10, 10);
-			itemContext.strokeStyle = "#FFFF00";
+			itemContext.rect(editingItem.x, editingItem.y, 10, 10);
+			itemContext.rect(editingItem.x+editingItem.width-10, editingItem.y, 10, 10);
+			itemContext.rect(editingItem.x, editingItem.y+editingItem.height-10, 10, 10);
+			itemContext.rect(editingItem.x+editingItem.width-10, editingItem.y+editingItem.height-10, 10, 10);
+			itemContext.fill();
+			itemContext.strokeStyle = "#000000";
 			itemContext.stroke();
 		}
   }
@@ -770,14 +782,14 @@ function activeFreehand() {
 
 function anchorHitTest(x, y) {
 	const size = 10;
-	const position = 5;
+	const position = 10;
 
 	// top-left
 	if (
-		x >= editingItem.x - position &&
-		x <= editingItem.x - position + size &&
-		y >= editingItem.y - position &&
-		y <= editingItem.y - position + size
+		x >= editingItem.x &&
+		x <= editingItem.x + size &&
+		y >= editingItem.y &&
+		y <= editingItem.y + size
 	) {
 		return (0);
 	}
@@ -786,8 +798,8 @@ function anchorHitTest(x, y) {
 	if (
 		x >= editingItem.x + editingItem.width - position &&
 		x <= editingItem.x + editingItem.width - position + size &&
-		y >= editingItem.y - position &&
-		y <= editingItem.y - position + size
+		y >= editingItem.y &&
+		y <= editingItem.y + size
 	) {
 		return (1);
 	}
@@ -802,8 +814,8 @@ function anchorHitTest(x, y) {
 	}
 	// bottom-left
 	if (
-		x >= editingItem.x - position &&
-		x <= editingItem.x - position + size &&
+		x >= editingItem.x &&
+		x <= editingItem.x + size &&
 		y >= editingItem.y + editingItem.height - position &&
 		y <= editingItem.y + editingItem.height - position + size
 	) {

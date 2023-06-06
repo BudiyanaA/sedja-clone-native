@@ -37,12 +37,12 @@ function addLink(startX, startY, endX, endY) {
       </div>
       <div class="form-group">
         <label>Link URL:</label>
-        <input type="text" id="link-url" oninput="validateLinkUrl()">
+        <input type="text" id="link-url" oninput="validateLinkUrl()" value="${item.link}">
         <small style="color:red" id="link-url-error"></small>
       </div>
-      <div class="form-group">
+      <!-- <div class="form-group">
         <button onclick="createItem('${item.canvas_id}', 'links')">Create Link</button>
-      </div>
+      </div> -->
       <div class="form-group">
         <button onclick="deleteItem()">Delete Link</button>
       </div>

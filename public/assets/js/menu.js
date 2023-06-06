@@ -56,6 +56,16 @@ const submenuItem = {
       <ul id="image-list"></ul>
     </div>
   `,
+  anotate: `
+    <div class="form-group">
+      <label>Border Width:</label>
+      <input type="range" id="width-anotate" min="5" max="15" value="1">
+    </div>
+    <div class="form-group">
+      <label>Border Color:</label>
+      <input type="color" id="color-anotate" value="#000000">
+    </div>
+  `,
   shapes: `
     <div>
       <button onclick="setSelectedSubmenu('box')">Create Box</button>
