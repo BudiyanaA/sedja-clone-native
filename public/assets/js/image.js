@@ -1,7 +1,7 @@
 function addImage(img) {
     if (img != null) {
           var item = {
-              src: img,
+              src: img.src,
               x: 0,
               y: 0,
               width: img.width, 

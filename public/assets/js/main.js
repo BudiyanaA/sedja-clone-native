@@ -687,7 +687,16 @@ function drawItems() {
 			}
 			break;
 		case "image":
-			itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
+			try {
+				// itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
+				const image = new Image();
+				image.onload = function() {
+					itemContext.drawImage(image, item.x, item.y, item.width, item.height);
+				};
+				image.src = item.src;
+			} catch (e) {
+				console.log(e);
+			}
 			break;
 		case "witheout":
 			itemContext.beginPath();
