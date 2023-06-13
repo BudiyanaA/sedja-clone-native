@@ -746,7 +746,8 @@ function drawItems() {
 			}
 			break;
 		case "anotate":
-			itemContext.strokeStyle = item.color;
+			var brushPattern = getBrushPattern(item.brush_type, item.color);
+			itemContext.strokeStyle = itemContext.createPattern(brushPattern, 'repeat');
 			itemContext.lineWidth = item.width;
 			itemContext.lineJoin = 'round';
 			itemContext.lineCap = 'round';

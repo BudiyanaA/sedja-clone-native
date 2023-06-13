@@ -42,7 +42,7 @@
     </div>
   </div>  -->
 
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <!-- <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
   <script>
@@ -54,7 +54,7 @@
     };
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
-  </script>
+  </script> -->
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
