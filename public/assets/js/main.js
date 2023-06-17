@@ -32,6 +32,7 @@ function renderPDFPage(page, pdfCanvas, itemCanvas) {
 	wrapper.appendChild(pdfCanvas);
 	wrapper.appendChild(itemCanvas);
 	document.getElementById('pdfContainer').appendChild(wrapper);
+	wrapper.id = "canvas-wrapper";
 
 	page.render({
 		canvasContext: pdfContext,
@@ -112,11 +113,11 @@ function canvasClickHandler(event, canvasId) {
 		let itemHeight = 0;
 
 		switch (item.type) {
+			case 'links':
 			case 'text':
 				itemWidth = itemContext.measureText(item.text).width;
 				itemHeight = parseInt(item.fontSize);
 				break;
-			case 'links':
 			case 'forms':
 			case 'image':
 			case 'witheout':
@@ -148,10 +149,10 @@ function canvasClickHandler(event, canvasId) {
   }
 
 	switch (selectedMenu) {
+		case 'links':
 		case 'text':
 			createItem(canvasId, 'text', x, y);
 			break;
-		case 'links':
 		case 'witheout':
 		case 'sign-click':
 			return;
@@ -203,7 +204,7 @@ function canvasMousedownHandler(evt, canvasId) {
 
 	} else {
 		switch (selectedMenu) {
-			case 'links':
+			// case 'links':
 			case 'witheout':
 			case 'sign-click':
 				startDraw(evt);
@@ -303,7 +304,7 @@ function canvasMousemoveDragHandler(evt, canvasId) {
 
 function canvasMouseupHandler(evt, canvasId) {
 	const selectedMenu = document.getElementById('selected').value;
-	if (!editingItem && (selectedMenu == "links" || selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand) || (selectedMenu == "anotate" && isFreehand))) {
+	if (!editingItem && (selectedMenu == "witheout" || selectedMenu == "sign-click" || (selectedMenu == "sign" && isFreehand) || (selectedMenu == "anotate" && isFreehand))) {
 		endDraw(canvasId); //
 	}
 	isDragging = false;
@@ -352,17 +353,17 @@ function endDraw(canvasId) {
 	isDrawing = false;
 
 	switch (selectedMenu) {
-		case 'links':
-			var text = prompt("Masukkan teks:");
-			if (text != null) {
-				showSettings({ 
-					type: selectedMenu, 
-					canvas_id: canvasId, 
-					link: text 
-				});
-				createItem(canvasId, 'links');
-			}
-			break;
+		// case 'links':
+		// 	var text = prompt("Masukkan teks:");
+		// 	if (text != null) {
+		// 		showSettings({ 
+		// 			type: selectedMenu, 
+		// 			canvas_id: canvasId, 
+		// 			link: text 
+		// 		});
+		// 		createItem(canvasId, 'links');
+		// 	}
+		// 	break;
 		case 'witheout':
 		case 'sign-click':
 			showSettings({ type: selectedMenu, canvas_id: canvasId });
@@ -405,11 +406,11 @@ function checkForSelectedItem(canvasId) {
 		let height = 0;
 
 		switch (item.type) {
+			case 'links':
 			case 'text':
 				width = itemContext.measureText(item.text).width;
 				height = parseInt(item.fontSize);
 				break;
-			case 'links':
 			case 'forms':
 			case 'image':
 			case 'witheout':
@@ -458,7 +459,7 @@ function deleteItem() {
 function showSettings(item) {
 	const settingsMapping = {
 		text: generateTextSettings,
-		links: generateLinkSettings,
+		links: generateTextSettings,
 		symbol: generateSymbolSettings,
 		forms: generateFormSettings,
 		image: generateImageSettings,
@@ -491,7 +492,7 @@ function duplicateItem() {
 function createItem(canvasId, type, x = 0, y = 0) {
 	const itemMapping = {
 		text: () => addText(x, y),
-		links: () => addLink(startX, startY, endX, endY),
+		// links: () => addLink(startX, startY, endX, endY),
 		symbol: () => addForm(x, y),
 		textbox: () => addForm(type),
 		textarea: () => addForm(type),
@@ -591,43 +592,43 @@ function drawItems() {
 			itemContext.textAlign = "left";
 			itemContext.fillText(item.text, item.x, item.y);
 			break;
-		case "links":
-			itemContext.beginPath();
-			itemContext.rect(item.x, item.y, item.width, item.height);
-			itemContext.fillStyle = "rgba(0, 0, 255, 0.1)";
-			itemContext.fill();
-			itemContext.strokeStyle = "blue";
-			itemContext.stroke();
+	// 	case "links":
+	// 		itemContext.beginPath();
+	// 		itemContext.rect(item.x, item.y, item.width, item.height);
+	// 		itemContext.fillStyle = "rgba(0, 0, 255, 0.1)";
+	// 		itemContext.fill();
+	// 		itemContext.strokeStyle = "blue";
+	// 		itemContext.stroke();
 
-			var linkLabel, linkText;
-      switch (item.link_type) {
-        case "external":
-          linkLabel = "External Link";
-          linkText = item.link;
-          break;
-        case "email":
-          linkLabel = "Email Link";
-          linkText = item.link;
-          break;
-        case "phone":
-          linkLabel = "Phone Link";
-          linkText = item.link;
-          break;
-        case "pdf":
-          linkLabel = "Internal PDF Link";
-          break;
-      }
+	// 		var linkLabel, linkText;
+    //   switch (item.link_type) {
+    //     case "external":
+    //       linkLabel = "External Link";
+    //       linkText = item.link;
+    //       break;
+    //     case "email":
+    //       linkLabel = "Email Link";
+    //       linkText = item.link;
+    //       break;
+    //     case "phone":
+    //       linkLabel = "Phone Link";
+    //       linkText = item.link;
+    //       break;
+    //     case "pdf":
+    //       linkLabel = "Internal PDF Link";
+    //       break;
+    //   }
 
-			if (linkLabel) {
-				itemContext.font = "12px Arial";
-				itemContext.fillStyle = "blue";
-				itemContext.fillText(linkLabel, item.x + 5, item.y + 15);
-			}
-			if (linkText) {
-				itemContext.fillText(linkText, item.x + 5, item.y + 30);
-			}
+	// 		if (linkLabel) {
+	// 			itemContext.font = "12px Arial";
+	// 			itemContext.fillStyle = "blue";
+	// 			itemContext.fillText(linkLabel, item.x + 5, item.y + 15);
+	// 		}
+	// 		if (linkText) {
+	// 			itemContext.fillText(linkText, item.x + 5, item.y + 30);
+	// 		}
 
-			break;
+	// 		break;
 		case "symbol":
 			itemContext.save();
 			itemContext.translate(item.x, item.y);
@@ -700,14 +701,7 @@ function drawItems() {
 					};
 					image.src = item.src;
 				}
-				item.lal = "test";
 				itemContext.drawImage(item.img_obj, item.x, item.y, item.width, item.height);
-
-				// const image = new Image();
-				// image.onload = function() {
-				// 	itemContext.drawImage(image, item.x, item.y, item.width, item.height);
-				// };
-				// image.src = item.src;
 			} catch (e) {
 				console.log(e);
 			}

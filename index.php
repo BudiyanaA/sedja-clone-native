@@ -11,6 +11,7 @@
     <button class="save" onclick="saveFile()">Save</button>
     <input type="text" id="id-docs">
     <button class="load" onclick="loadFile()">Load</button>
+    <button onclick="downloadPDF()">Download</button>
   </div>
   <hr>
   <div>
@@ -58,6 +59,8 @@
 
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="../public/assets/js/menu.js"></script>
   <script src="../public/assets/js/text.js"></script>
   <script src="../public/assets/js/links.js"></script>
@@ -222,7 +225,25 @@ function loadFile() {
           console.log(`Error saat mengambil dokumen: ${error}`);
         });
       } 
-      // WMC3IHU9MQ6E6A3VDV1J
+      
+      function downloadPDF() {
+        window.jsPDF = window.jspdf.jsPDF;
+        var doc = new jsPDF();
+
+        var canvases = document.querySelectorAll('.item-canvas');
+	      canvases.forEach(function(canvas, i) {          
+          var canvas1 = document.getElementById(`pdf-canvas-${i+1}`);
+          var canvas2 = document.getElementById(`item-canvas-${i+1}`);
+          var imageData1 = canvas1.toDataURL('image/png');
+          var imageData2 = canvas2.toDataURL('image/png');
+          doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width);
+          doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width);
+          doc.addPage();
+	      });
+        setTimeout(function() {
+          doc.save('canvas.pdf');
+        }, 1000); 
+      }
   </script>
 </body>
 </html>
