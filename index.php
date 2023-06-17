@@ -106,6 +106,8 @@ function saveFile() {
           var relativeUrl = baseUrl + '/upload/' + file.name;
           var id = generateId();
 
+          items.forEach(function(v){ delete v.img_obj });
+
           var data = {
             id: id,
             file: file.name,
@@ -115,12 +117,12 @@ function saveFile() {
 
           xhrDb.onreadystatechange = function() {
             if (this.readyState === XMLHttpRequest.DONE) {
-              if (this.status === 200) {
+              if (this.status === 200 && JSON.parse(this.response).success) {
                 console.log("Data berhasil disimpan ke database");
                 alert("File berhasil diunggah ke database dengan id: " + id);
               } else {
                 console.log("Terjadi kesalahan saat menyimpan data ke database: " + this.status);
-                alert("Terjadi kesalahan saat menyimpan data ke database. Kode status: " + this.status);
+                alert("Terjadi kesalahan saat menyimpan data ke database.");
               }
             }
           };
@@ -147,6 +149,7 @@ function loadFile() {
         return response.json();
       })
       .then(doc => {
+        console.log(doc.items);
         console.log(`Data dokumen dengan ID ${docId}: `, doc);
           if (doc.url) {
             var pdfjsLib = window['pdfjs-dist/build/pdf'];
@@ -219,6 +222,7 @@ function loadFile() {
           console.log(`Error saat mengambil dokumen: ${error}`);
         });
       } 
+      // WMC3IHU9MQ6E6A3VDV1J
   </script>
 </body>
 </html>

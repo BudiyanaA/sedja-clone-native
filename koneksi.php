@@ -22,10 +22,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $response = array("success" => true, "id" => $id);
     echo json_encode($response);
   } else {
-    $response = array("success" => false);
+    echo var_dump($conn);
+    $response = array("success" => false, "test" => "lol");
     echo json_encode($response);
   }
 }
 
 mysqli_close($conn);
 ?>
+

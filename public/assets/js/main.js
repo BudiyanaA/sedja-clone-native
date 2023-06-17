@@ -56,29 +56,32 @@ function renderPDFPage(page, pdfCanvas, itemCanvas) {
 	});
 }
 
-function loadPDFFile(file) {
-	const fileReader = new FileReader();
-	fileReader.onload = function() {
-		const typedArray = new Uint8Array(this.result);
-		pdfjsLib.getDocument(typedArray).promise.then(function(pdf) {
-			const numPages = pdf.numPages;
-			for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-				pdf.getPage(pageNum).then(function(page) {
-					const pdfCanvas = document.createElement('canvas');
-					const itemCanvas = document.createElement('canvas');
-					const pdfCanvasId = 'pdf-canvas-' + pageNum;
-					const itemCanvasId = 'item-canvas-' + pageNum;
-					pdfCanvas.classList.add("pdf-canvas");
-					itemCanvas.classList.add("item-canvas");
-					pdfCanvas.id = pdfCanvasId;
-					itemCanvas.id = itemCanvasId;
+async function loadPDFFile(file) {
+	try {
+		const typedArray = await file.arrayBuffer();
+		const pdf = await pdfjsLib.getDocument(typedArray).promise;
+		const numPages = pdf.numPages;
 
-					renderPDFPage(page, pdfCanvas, itemCanvas);
-				});
-			}
-		});
-	};
-	fileReader.readAsArrayBuffer(file);
+		const pdfContainer = document.getElementById('pdfContainer');
+		const pdfFragment = document.createDocumentFragment();
+
+		for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+			const page = await pdf.getPage(pageNum);
+			const pdfCanvas = document.createElement('canvas');
+			const itemCanvas = document.createElement('canvas');
+			const pdfCanvasId = 'pdf-canvas-' + pageNum;
+			const itemCanvasId = 'item-canvas-' + pageNum;
+			pdfCanvas.classList.add("pdf-canvas");
+			itemCanvas.classList.add("item-canvas");
+			pdfCanvas.id = pdfCanvasId;
+			itemCanvas.id = itemCanvasId;
+
+			renderPDFPage(page, pdfCanvas, itemCanvas);
+		}
+
+	} catch(error) {
+		console.error(error);
+	}
 }
 
 pdfFile.addEventListener('change', function() {
@@ -689,11 +692,22 @@ function drawItems() {
 		case "image":
 			try {
 				// itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
-				const image = new Image();
-				image.onload = function() {
-					itemContext.drawImage(image, item.x, item.y, item.width, item.height);
-				};
-				image.src = item.src;
+				if (!item.hasOwnProperty("img_obj")) {
+					const image = new Image();
+					image.onload = function() {
+						item.img_obj = image;
+						drawItems();
+					};
+					image.src = item.src;
+				}
+				item.lal = "test";
+				itemContext.drawImage(item.img_obj, item.x, item.y, item.width, item.height);
+
+				// const image = new Image();
+				// image.onload = function() {
+				// 	itemContext.drawImage(image, item.x, item.y, item.width, item.height);
+				// };
+				// image.src = item.src;
 			} catch (e) {
 				console.log(e);
 			}
