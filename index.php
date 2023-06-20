@@ -3,7 +3,7 @@
 <head>
 	<title>Upload dan Tampil PDF di Canvas</title>
   <link rel="stylesheet" href="../public/assets/css/style.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="../public/assets/css/font-awesome.min.css"/>
 </head>
 <body>
   <div style="margin: auto;">
@@ -36,31 +36,9 @@
 
   <div class="parent-container" id="pdfContainer"></div>
 
-  <!-- <div class="parent-container">
-    <div class="canvas-wrapper">
-      <canvas class="pdf-canvas" id="pdf-canvas"></canvas>
-      <canvas class="item-canvas" id="item-canvas"></canvas>
-    </div>
-  </div>  -->
-
-  <!-- <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
-  <script>
-    var firebaseConfig = {
-      apiKey: "AIzaSyCoEFxvwxh28wkykfPcc9DGo2epn8WkP_Y",
-      authDomain: "sedja-clone.firebaseapp.com",
-      projectId: "sedja-clone",
-      storageBucket: "sedja-clone.appspot.com",
-    };
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-  </script> -->
-
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="../public/assets/js/pdf.min.js"></script>
+  <script src="../public/assets/js/jspdf.umd.min.js"></script>
+  <script src="../public/assets/js/html2canvas.min.js"></script>
   <script src="../public/assets/js/menu.js"></script>
   <script src="../public/assets/js/text.js"></script>
   <script src="../public/assets/js/links.js"></script>
