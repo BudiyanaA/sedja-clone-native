@@ -1,3 +1,6 @@
 #mysql
 wait_timeout = 3600
 max_allowed_packet = 128M
+
+#nginx
+client_max_body_size 100M

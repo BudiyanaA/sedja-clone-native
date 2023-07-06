@@ -634,6 +634,8 @@ function drawItems() {
 			itemContext.translate(item.x, item.y);
 			itemContext.rotate(item.rotation * Math.PI / 180);
 			itemContext.beginPath();
+			itemContext.strokeStyle = "#000000";
+			
 
 			switch (item.symbol_type) {
 				case "check":
@@ -682,7 +684,7 @@ function drawItems() {
 					formText = 'Checkbox Button';
 					break;
 				default:
-					formText = 'Textbox';
+					formText = '';
 					break;
 			}
 
@@ -782,14 +784,17 @@ function drawItems() {
 		}
 
 		if (editingItem) {
-			itemContext.beginPath();
-			itemContext.rect(editingItem.x, editingItem.y, 10, 10);
-			itemContext.rect(editingItem.x+editingItem.width-10, editingItem.y, 10, 10);
-			itemContext.rect(editingItem.x, editingItem.y+editingItem.height-10, 10, 10);
-			itemContext.rect(editingItem.x+editingItem.width-10, editingItem.y+editingItem.height-10, 10, 10);
-			itemContext.fill();
-			itemContext.strokeStyle = "#000000";
-			itemContext.stroke();
+			const editingCanvas = document.getElementById(editingItem.canvas_id);
+			const editingContext = editingCanvas.getContext('2d');
+
+			editingContext.beginPath();
+			// editingContext.rect(editingItem.x, editingItem.y, 10, 10);
+			// editingContext.rect(editingItem.x+editingItem.width-10, editingItem.y, 10, 10);
+			// editingContext.rect(editingItem.x, editingItem.y+editingItem.height-10, 10, 10);
+			editingContext.rect(editingItem.x+editingItem.width-10, editingItem.y+editingItem.height-10, 10, 10);
+			editingContext.fill();
+			editingContext.strokeStyle = "#000000";
+			editingContext.stroke();
 		}
   }
 } 
