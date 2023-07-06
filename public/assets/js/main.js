@@ -86,6 +86,14 @@ async function loadPDFFile(file) {
 }
 
 pdfFile.addEventListener('change', function() {
+	var divElement = document.getElementById("pdfContainer");
+
+	if (divElement) {
+	  while (divElement.firstChild) {
+		divElement.removeChild(divElement.firstChild);
+	  }
+	}
+
 	const file = pdfFile.files[0];
 	console.log(file);
 	loadPDFFile(file);
@@ -366,7 +374,8 @@ function endDraw(canvasId) {
 		// 	break;
 		case 'witheout':
 		case 'sign-click':
-			showSettings({ type: selectedMenu, canvas_id: canvasId });
+			// showSettings({ type: selectedMenu, canvas_id: canvasId });
+			createItem(canvasId, 'sign-container');
 			break;
 		case 'sign':
 			createItem(canvasId, 'sign-freehand');
