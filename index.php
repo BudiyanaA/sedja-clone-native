@@ -137,10 +137,10 @@ function loadFile() {
             pdfjsLib.getDocument({
               url: doc.url,
               mode: 'no-cors'
-            }).promise.then(function(pdf) {
+            }).promise.then(async function(pdf) {
               const numPages = pdf.numPages;
               for (let pageNum = 1; pageNum <= numPages; pageNum++) {
-                pdf.getPage(pageNum).then(function(page) {
+                  const page = await pdf.getPage(pageNum);
                   const pdfCanvas = document.createElement('canvas');
 					        const itemCanvas = document.createElement('canvas');
 					        const pdfCanvasId = 'pdf-canvas-' + pageNum;
@@ -150,46 +150,11 @@ function loadFile() {
 					        pdfCanvas.id = pdfCanvasId;
 					        itemCanvas.id = itemCanvasId;
 
-                  const viewport = page.getViewport({scale: 1});
-	                const pdfContext = pdfCanvas.getContext('2d');
-
-                  pdfCanvas.width = viewport.width;
-                  pdfCanvas.height = viewport.height;
-                  itemCanvas.width = viewport.width;
-                  itemCanvas.height = viewport.height;
-
-                  const wrapper = document.createElement('div');
-	                wrapper.classList.add("canvas-wrapper");
-	                wrapper.appendChild(pdfCanvas);
-	                wrapper.appendChild(itemCanvas);
-	                document.getElementById('pdfContainer').appendChild(wrapper);
-
-                  page.render({
-                    canvasContext: pdfContext,
-                    viewport: viewport
-                  });
-
-                  itemCanvas.addEventListener('click', function(event) {
-		canvasClickHandler(event, itemCanvas.id);
-	});
-	itemCanvas.addEventListener('mousedown', function(event) {
-		canvasMousedownHandler(event, itemCanvas.id);
-	});
-	itemCanvas.addEventListener('mousemove', function(event) {
-		canvasMousemoveDrawHandler(event, itemCanvas.id);
-		canvasMousemoveDragHandler(event, itemCanvas.id);
-	});
-	itemCanvas.addEventListener('mouseup', function(event) {
-		canvasMouseupHandler(event, itemCanvas.id);
-	});
-	itemCanvas.addEventListener('dblclick', function(event) {
-		canvasDblclickHandler(event, itemCanvas.id);
-	});
+                  renderPDFPage(page, pdfCanvas, itemCanvas);
 
                   items = JSON.parse(doc.items);
                   console.log(items);
                   drawItems();
-                });
               }
             });
           } else {
