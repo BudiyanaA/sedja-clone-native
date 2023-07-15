@@ -33,6 +33,8 @@ function renderPDFPage(page, pdfCanvas, itemCanvas) {
 	wrapper.appendChild(itemCanvas);
 	document.getElementById('pdfContainer').appendChild(wrapper);
 	wrapper.id = "canvas-wrapper";
+	console.log(viewport.height)
+	wrapper.style.height = (viewport.height / 6.6) + "%";
 
 	page.render({
 		canvasContext: pdfContext,
