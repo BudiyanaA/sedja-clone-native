@@ -375,6 +375,8 @@ function endDraw(canvasId) {
 		// 	}
 		// 	break;
 		case 'witheout':
+			showSettings({ type: selectedMenu, canvas_id: canvasId });
+			break;
 		case 'sign-click':
 			// showSettings({ type: selectedMenu, canvas_id: canvasId });
 			createItem(canvasId, 'sign-container');
