@@ -160,6 +160,8 @@ function canvasClickHandler(event, canvasId) {
 
 	switch (selectedMenu) {
 		case 'links':
+			createItem(canvasId, 'links', x, y);
+			break;
 		case 'text':
 			createItem(canvasId, 'text', x, y);
 			break;
@@ -325,7 +327,7 @@ function canvasDblclickHandler(evt, canvasId) {
 	const itemCanvas = document.getElementById(canvasId);
 
 	mouse = getMousePos(itemCanvas, evt);
-  	checkForSelectedItem(canvasId);
+  checkForSelectedItem(canvasId);
 
 	if (editingItem && editingItem.type == "sign-container") {
 		const input = document.getElementById("sign-image-input");
@@ -349,6 +351,8 @@ function canvasDblclickHandler(evt, canvasId) {
 		reader.readAsDataURL(file);
 
 		drawItems();
+	} else if (editingItem && editingItem.type == "links") {
+		window.open(editingItem.link, '_blank');
 	}
 }
 
@@ -505,7 +509,7 @@ function duplicateItem() {
 function createItem(canvasId, type, x = 0, y = 0) {
 	const itemMapping = {
 		text: () => addText(x, y),
-		// links: () => addLink(startX, startY, endX, endY),
+		links: () => addLink(x, y),
 		symbol: () => addForm(x, y),
 		textbox: () => addForm(type),
 		textarea: () => addForm(type),
@@ -598,6 +602,7 @@ function drawItems() {
 		const itemContext = itemCanvas.getContext('2d');
 		
 		switch (item.type) {
+		case "links":
 		case "text":
 			itemContext.font = item.fontStyle + " " + item.fontWeight + " " + item.fontSize + " " + item.font;
 			itemContext.fillStyle = item.color;

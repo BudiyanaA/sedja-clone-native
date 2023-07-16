@@ -6,17 +6,30 @@ TODO:
 4. Hide Delete Link (create)
 */
 
-function addLink(startX, startY, endX, endY) {
-    var linkType = document.getElementById("link-type").value;
-    var linkUrl = document.getElementById("link-url").value;
-    if (linkType != null && linkUrl != null ) {
+function addLink(x, y) {
+    // var linkType = document.getElementById("link-type").value;
+    // var linkUrl = document.getElementById("link-url").value;
+    var text = prompt("Masukkan teks:");
+    var linkurl = prompt("Masukkan link:");
+    if (text != null && linkurl != null ) {
       var item = {
-        x: startX,
-        y: startY,
-        width: endX - startX, 
-        height: endY - startY, 
-        link_type: linkType, 
-        link: linkUrl,
+        // x: startX,
+        // y: startY,
+        // width: endX - startX, 
+        // height: endY - startY, 
+        // link_type: linkType, 
+        // link: linkUrl,
+        // type: "links",
+        text: text,
+        x: x,
+        y: y,
+        font: "Arial",
+        fontSize: "16px",
+        fontStyle: "normal",
+        fontWeight: "normal",
+        textDecoration: "none",
+        color: "#000000",
+        link: linkurl,
         type: "links",
       };
       return item;

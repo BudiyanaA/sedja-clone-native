@@ -19,7 +19,7 @@ function addText(x, y) {
         textDecoration: "none",
         color: "#000000",
         link: "",
-              type: "text",
+        type: "text",
       };
       return item;
     }
@@ -27,7 +27,7 @@ function addText(x, y) {
   }
   
   function generateTextSettings(item) {
-      const html = `
+      let html = `
           <div class="form-group">
               <label for="font-input">Text:</label>
               <input value='${item.text}' type="text" id="text-input" onchange="setTextAttributeFromInput(this)" data-attribute="text">
@@ -69,16 +69,21 @@ function addText(x, y) {
         <div class="form-group">
           <label for="color-input">Warna Teks:</label>
           <input value=${item.color} type="color" id="color-input" onchange="setTextAttributeFromInput(this)" data-attribute="color">
-        </div>
-        <div class="form-group">
-          <label for="link-input">Link:</label>
-          <input value="${item.link}" type="text" id="link-input" onchange="setTextAttributeFromInput(this)" data-attribute="link">
-          <button onclick="convertToLink()">Convert to link</button>
-        </div>
-        <div class="form-group">
+        </div>`
+
+        if (item.type == "links") {
+          html += `<div class="form-group">
+            <label for="link-input">Link:</label>
+            <input value="${item.link}" type="text" id="link-input" onchange="setTextAttributeFromInput(this)" data-attribute="link">
+              <!-- <button onclick="convertToLink()">Convert to link</button> -->
+            </input>
+          </div>`;
+        }
+
+        html +=
+        `<div class="form-group">
           <button onclick="deleteItem()">Delete</button>
-        </div>
-      `;
+        </div>`;
     return html;
   }
   function setTextAttributeFromInput(input) {
@@ -122,14 +127,15 @@ function addText(x, y) {
       var link = prompt("Masukkan URL:");
       if (link != null && link != "") {
         setTextAttribute(editingItem, "link", link);
-        var a = document.createElement("a");
-        a.href = link;
-        a.target = "_blank";
-        a.innerHTML = editingItem.text;
-        var span = document.createElement("span");
-        span.appendChild(a);
-        var html = span.innerHTML;
-        setTextAttribute(editingItem, "text", html);
+        editingItem.type = "links";
+        // var a = document.createElement("a");
+        // a.href = link;
+        // a.target = "_blank";
+        // a.innerHTML = editingItem.text;
+        // var span = document.createElement("span");
+        // span.appendChild(a);
+        // var html = span.innerHTML;
+        // setTextAttribute(editingItem, "text", html);
         drawItems();
       }
     }
