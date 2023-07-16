@@ -343,7 +343,7 @@ function canvasDblclickHandler(evt, canvasId) {
 			const img = new Image();
 			img.onload = function () {
 				editingItem.signed = true;
-				editingItem.src = img;
+				editingItem.src = img.src;
 				drawItems();
 			};
 			img.src = e.target.result;
@@ -758,7 +758,20 @@ function drawItems() {
 			itemContext.stroke();
 
 			if (item.signed) {
-				itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
+				// itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
+				try {
+					if (!item.hasOwnProperty("img_obj")) {
+						const image = new Image();
+						image.onload = function() {
+							item.img_obj = image;
+							drawItems();
+						};
+						image.src = item.src;
+					}
+					itemContext.drawImage(item.img_obj, item.x, item.y, item.width, item.height);
+				} catch (e) {
+					console.log(e);
+				}
 			}
 			break;
 		case "sign":
