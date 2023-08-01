@@ -51,6 +51,8 @@
   <script src="../public/assets/js/anotate.js"></script>
   <script src="../public/assets/js/main.js"></script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
   <script>
     function generateId() {
   var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -168,8 +170,32 @@ function loadFile() {
           console.log(`Error saat mengambil dokumen: ${error}`);
         });
       } 
-      
+
+  function combineCanvasImagesToHTML() {
+    var canvasElements = document.querySelectorAll('.item-canvas');
+    var combinedCanvas = document.createElement('canvas');
+    var context = combinedCanvas.getContext('2d');
+    combinedCanvas.width = 400; // Ganti ukuran dengan lebar halaman PDF
+    combinedCanvas.height = 600; // Ganti ukuran dengan tinggi halaman PDF
+
+    canvasElements.forEach(function(canvasElement, index) {
+        context.drawImage(canvasElement, 0, 0, canvasElement.width, canvasElement.height, 0, index * 200, 400, 200);
+    });
+
+    return combinedCanvas;
+  }
+
       function downloadPDF() {
+        // var element = document.getElementById('canvas-wrapper');
+        // var opt = {
+        //     margin: 10,
+        //     filename: 'canvas_export.pdf',
+        //     image: { type: 'jpeg', quality: 1 },
+        //     html2canvas: { scale: 2 },
+        //     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        // };
+        // html2pdf().set(opt).from(element).save();
+
         window.jsPDF = window.jspdf.jsPDF;
         var doc = new jsPDF();
 
