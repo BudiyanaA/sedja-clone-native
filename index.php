@@ -204,8 +204,8 @@ function loadFile() {
           var canvas2 = document.getElementById(`item-canvas-${i+1}`);
           var imageData1 = canvas1.toDataURL('image/png');
           var imageData2 = canvas2.toDataURL('image/png');
-          doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width);
-          doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width);
+          doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width, '', 'FAST');
+          doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width, '', 'FAST');
           doc.addPage();
 	      });
         setTimeout(function() {
