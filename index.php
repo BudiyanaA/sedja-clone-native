@@ -153,11 +153,10 @@ function loadFile() {
 					        itemCanvas.id = itemCanvasId;
 
                   renderPDFPage(page, pdfCanvas, itemCanvas);
-
-                  items = JSON.parse(doc.items);
-                  console.log(items);
-                  drawItems();
               }
+              items = JSON.parse(doc.items);
+              console.log(items);
+              drawItems();
             });
           } else {
             items = JSON.parse(doc.items);
