@@ -195,6 +195,9 @@ function loadFile() {
         // };
         // html2pdf().set(opt).from(element).save();
 
+        editingItem = null;
+        drawItems();
+
         window.jsPDF = window.jspdf.jsPDF;
         var doc = new jsPDF();
 

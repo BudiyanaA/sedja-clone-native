@@ -758,6 +758,7 @@ function drawItems() {
 						image.onload = function() {
 							item.img_obj = image;
 							drawItems();
+							return;
 						};
 						image.src = item.src;
 					}
@@ -822,6 +823,7 @@ function drawItems() {
 			// editingContext.rect(editingItem.x, editingItem.y, 10, 10);
 			// editingContext.rect(editingItem.x+editingItem.width-10, editingItem.y, 10, 10);
 			// editingContext.rect(editingItem.x, editingItem.y+editingItem.height-10, 10, 10);
+			editingContext.fillStyle = "#000000";
 			editingContext.rect(editingItem.x+editingItem.width-10, editingItem.y+editingItem.height-10, 10, 10);
 			editingContext.fill();
 			editingContext.strokeStyle = "#000000";
