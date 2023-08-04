@@ -103,7 +103,6 @@ pdfFile.addEventListener('change', function() {
 });
 
 function canvasClickHandler(event, canvasId) {
-	console.log(canvasId);
 	const itemCanvas = document.getElementById(canvasId);
 	const itemContext = itemCanvas.getContext('2d');
 
@@ -237,11 +236,12 @@ function canvasMousedownHandler(evt, canvasId) {
 }
 
 function canvasMousemoveDrawHandler(e, canvasId) {
+	const selectedMenu = document.getElementById('selected').value;
 	const itemCanvas = document.getElementById(canvasId);
 	const itemContext = itemCanvas.getContext('2d');
 
 	if (!isDrawing) return;
-	if (isFreehand) {
+	if (isFreehand && (selectedMenu == 'anotate' || selectedMenu == 'sign')) {
     const x = e.offsetX;
     const y = e.offsetY;
 
