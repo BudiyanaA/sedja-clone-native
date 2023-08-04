@@ -751,15 +751,7 @@ function drawItems() {
 			break;
 		case "sign-container":
 			itemContext.beginPath();
-			itemContext.rect(item.x, item.y, item.width, item.height);
-			itemContext.fillStyle = item.backgroundColor;
-			itemContext.fill();
-			itemContext.lineWidth = item.borderWidth;
-			itemContext.strokeStyle = item.borderColor;
-			itemContext.stroke();
-
 			if (item.signed) {
-				// itemContext.drawImage(item.src, item.x, item.y, item.width, item.height);
 				try {
 					if (!item.hasOwnProperty("img_obj")) {
 						const image = new Image();
@@ -773,6 +765,13 @@ function drawItems() {
 				} catch (e) {
 					console.log(e);
 				}
+			} else {
+				itemContext.rect(item.x, item.y, item.width, item.height);
+				itemContext.fillStyle = item.backgroundColor;
+				itemContext.fill();
+				itemContext.lineWidth = item.borderWidth;
+				itemContext.strokeStyle = item.borderColor;
+				itemContext.stroke();
 			}
 			break;
 		case "sign":
