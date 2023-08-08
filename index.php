@@ -1,9 +1,11 @@
+<?php require 'helper.php'; ?>
+
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Upload dan Tampil PDF di Canvas</title>
-  <link rel="stylesheet" href="../public/assets/css/style.css">
-  <link rel="stylesheet" href="../public/assets/css/font-awesome.min.css"/>
+  <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/style.css' ?>" />
+  <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/font-awesome.min.css' ?>" />
 </head>
 <body>
   <div style="margin: auto;">
@@ -36,20 +38,20 @@
 
   <div class="parent-container" id="pdfContainer"></div>
 
-  <script src="../public/assets/js/pdf.min.js"></script>
-  <script src="../public/assets/js/jspdf.umd.min.js"></script>
-  <script src="../public/assets/js/html2canvas.min.js"></script>
-  <script src="../public/assets/js/menu.js"></script>
-  <script src="../public/assets/js/text.js"></script>
-  <script src="../public/assets/js/links.js"></script>
-  <script src="../public/assets/js/form.js"></script>
-  <script src="../public/assets/js/image.js"></script>
-  <script src="../public/assets/js/witheout.js"></script>
-  <script src="../public/assets/js/shape.js"></script>
-  <script src="../public/assets/js/sign-click.js"></script>
-  <script src="../public/assets/js/sign.js"></script>
-  <script src="../public/assets/js/anotate.js"></script>
-  <script src="../public/assets/js/main.js"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/pdf.min.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/jspdf.umd.min.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/html2canvas.min.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/menu.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/text.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/links.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/form.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/image.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/witheout.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/shape.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/sign-click.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/sign.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/anotate.js' ?>"></script>
+  <script src="<?php echo getBaseUrl() . '/public/assets/js/main.js' ?>"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
