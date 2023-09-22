@@ -54,6 +54,7 @@
   <script src="<?php echo getBaseUrl() . '/public/assets/js/main.js' ?>"></script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://unpkg.com/pdf-lib"></script>
 
   <script>
     function generateId() {
@@ -186,7 +187,7 @@ function loadFile() {
     return combinedCanvas;
   }
 
-      function downloadPDF() {
+      async function downloadPDF() {
         // var element = document.getElementById('canvas-wrapper');
         // var opt = {
         //     margin: 10,
@@ -197,25 +198,73 @@ function loadFile() {
         // };
         // html2pdf().set(opt).from(element).save();
 
-        editingItem = null;
-        drawItems();
+        // v2
+        // editingItem = null;
+        // drawItems();
 
-        window.jsPDF = window.jspdf.jsPDF;
-        var doc = new jsPDF();
+        // window.jsPDF = window.jspdf.jsPDF;
+        // var doc = new jsPDF();
 
-        var canvases = document.querySelectorAll('.item-canvas');
-	      canvases.forEach(function(canvas, i) {          
-          var canvas1 = document.getElementById(`pdf-canvas-${i+1}`);
-          var canvas2 = document.getElementById(`item-canvas-${i+1}`);
-          var imageData1 = canvas1.toDataURL('image/png');
-          var imageData2 = canvas2.toDataURL('image/png');
-          doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width, '', 'FAST');
-          doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width, '', 'FAST');
-          doc.addPage();
-	      });
-        setTimeout(function() {
-          doc.save('canvas.pdf');
-        }, 1000); 
+        // var canvases = document.querySelectorAll('.item-canvas');
+	      // canvases.forEach(function(canvas, i) {          
+        //   var canvas1 = document.getElementById(`pdf-canvas-${i+1}`);
+        //   var canvas2 = document.getElementById(`item-canvas-${i+1}`);
+        //   var imageData1 = canvas1.toDataURL('image/png');
+        //   var imageData2 = canvas2.toDataURL('image/png');
+        //   doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width, '', 'FAST');
+        //   doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width, '', 'FAST');
+        //   doc.addPage();
+	      // });
+        // setTimeout(function() {
+        //   doc.save('canvas.pdf');
+        // }, 1000); 
+
+        // v3
+        const pdf = await pdfFile.files[0].arrayBuffer();
+        const pdfDoc = await PDFLib.PDFDocument.load(pdf);
+        const pages = pdfDoc.getPages();
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i];
+          const id = item.canvas_id.split("-")[2];
+          const { width, height } = pages[id-1].getSize()
+          
+          switch (item.type) {
+            case "text":
+              const fontSize = parseInt(item.fontSize);
+              const color = hexToRgb(item.color);
+              // pages[id-1].moveTo(item.x, height - item.y);
+              pages[id-1].drawText(item.text, {
+                x: item.x,
+                y: height - item.y,
+                size: fontSize,
+                // font: item.fontStyle,
+                color: PDFLib.rgb(color.r, color.g, color.b),
+              });
+              break;
+          }
+        }
+
+        // const page = pdfDoc.addPage([350, 400]);
+        // page.moveTo(110, 200);
+        // page.drawText('Hello World!');
+        const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+
+        window.location.href = pdfDataUri
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pdfDataUri;
+        downloadLink.download = 'example.pdf'; // Nama file saat diunduh
+        downloadLink.textContent = 'Unduh PDF'; // Teks tautan
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+      }
+
+      function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+          r: parseInt(result[1], 16)/255,
+          g: parseInt(result[2], 16)/255,
+          b: parseInt(result[3], 16)/255
+        } : null;
       }
   </script>
 </body>
