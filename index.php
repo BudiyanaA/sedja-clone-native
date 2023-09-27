@@ -55,6 +55,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://unpkg.com/pdf-lib"></script>
+  <script src="https://unpkg.com/downloadjs@1.4.7"></script>
 
   <script>
     function generateId() {
@@ -244,18 +245,9 @@ function loadFile() {
           }
         }
 
-        // const page = pdfDoc.addPage([350, 400]);
-        // page.moveTo(110, 200);
-        // page.drawText('Hello World!');
         const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
-
-        window.location.href = pdfDataUri
-        const downloadLink = document.createElement('a');
-        downloadLink.href = pdfDataUri;
-        downloadLink.download = 'example.pdf'; // Nama file saat diunduh
-        downloadLink.textContent = 'Unduh PDF'; // Teks tautan
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
+        const pdfBytes = await pdfDoc.save()
+        download(pdfBytes, "example.pdf", "application/pdf");
       }
 
       function hexToRgb(hex) {
