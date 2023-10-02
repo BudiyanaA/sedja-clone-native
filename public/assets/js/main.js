@@ -62,6 +62,7 @@ function renderPDFPage(page, pdfCanvas, itemCanvas) {
 
 async function loadPDFFile(file) {
 	try {
+		// startLoading();
 		const typedArray = await file.arrayBuffer();
 		const pdf = await pdfjsLib.getDocument(typedArray).promise;
 		const numPages = pdf.numPages;
@@ -81,8 +82,9 @@ async function loadPDFFile(file) {
 			itemCanvas.id = itemCanvasId;
 
 			renderPDFPage(page, pdfCanvas, itemCanvas);
+			// console.log(pageNum / numPages);
 		}
-
+		// finishLoading();
 	} catch(error) {
 		console.error(error);
 	}
@@ -99,6 +101,7 @@ pdfFile.addEventListener('change', function() {
 
 	const file = pdfFile.files[0];
 	console.log(file);
+
 	loadPDFFile(file);
 });
 

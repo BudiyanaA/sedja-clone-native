@@ -36,6 +36,14 @@
   
   <div id="action"></div>
 
+  <div id="overlay"></div>
+  <div id="loadingModal" class="modal">
+      <div class="modal-content">
+          <div class="loader"></div>
+          <p>Loading...</p>
+      </div>
+  </div>
+
   <div class="parent-container" id="pdfContainer"></div>
 
   <script src="<?php echo getBaseUrl() . '/public/assets/js/pdf.min.js' ?>"></script>
@@ -221,33 +229,42 @@ function loadFile() {
         // }, 1000); 
 
         // v3
+        startLoading();
         const pdf = await pdfFile.files[0].arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(pdf);
-        const pages = pdfDoc.getPages();
-        for (let i = 0; i < items.length; i++) {
-          const item = items[i];
-          const id = item.canvas_id.split("-")[2];
-          const { width, height } = pages[id-1].getSize()
-          
-          switch (item.type) {
-            case "text":
-              const fontSize = parseInt(item.fontSize);
-              const color = hexToRgb(item.color);
-              // pages[id-1].moveTo(item.x, height - item.y);
-              pages[id-1].drawText(item.text, {
-                x: item.x,
-                y: height - item.y,
-                size: fontSize,
-                // font: item.fontStyle,
-                color: PDFLib.rgb(color.r, color.g, color.b),
-              });
-              break;
-          }
-        }
+        try {
+          const pdfDoc = await PDFLib.PDFDocument.load(pdf);
+          const pages = pdfDoc.getPages();
+          for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const id = item.canvas_id.split("-")[2];
+            const { width, height } = pages[id-1].getSize()
 
-        const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
-        const pdfBytes = await pdfDoc.save()
-        download(pdfBytes, "example.pdf", "application/pdf");
+            switch (item.type) {
+              case "text":
+                const fontSize = parseInt(item.fontSize);
+                const color = hexToRgb(item.color);
+                // pages[id-1].moveTo(item.x, height - item.y);
+                pages[id-1].drawText(item.text, {
+                  x: item.x,
+                  y: height - item.y - fontSize + (fontSize / 3.75),
+                  size: fontSize,
+                  // font: item.fontStyle,
+                  color: PDFLib.rgb(color.r, color.g, color.b),
+                });
+                break;
+            }
+          }
+
+          const pdfDataUri = await pdfDoc.saveAsBase64({ dataUri: true });
+          const pdfBytes = await pdfDoc.save()
+          finishLoading();
+          download(pdfBytes, "example.pdf", "application/pdf");
+        } catch(e) {
+          console.log("ENCRYPTED")
+          finishLoading();
+          alert("File Ter-enkripsi, silahkan dekripsi file terlebih dahulu di https://smallpdf.com/unlock-pdf");
+          return;
+        }
       }
 
       function hexToRgb(hex) {
@@ -257,6 +274,20 @@ function loadFile() {
           g: parseInt(result[2], 16)/255,
           b: parseInt(result[3], 16)/255
         } : null;
+      }
+
+      function startLoading() {
+        const loadingModal = document.getElementById('loadingModal');
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'block'
+        loadingModal.style.display = 'flex';
+      }
+
+      function finishLoading() {
+        const loadingModal = document.getElementById('loadingModal');
+        const overlay = document.getElementById('overlay');
+        overlay.style.display = 'none';
+        loadingModal.style.display = 'none';
       }
   </script>
 </body>
