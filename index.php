@@ -241,8 +241,8 @@ function loadFile() {
 
             switch (item.type) {
               case "text":
-                const fontSize = parseInt(item.fontSize);
-                const color = hexToRgb(item.color);
+                fontSize = parseInt(item.fontSize);
+                color = hexToRgb(item.color);
                 // pages[id-1].moveTo(item.x, height - item.y);
                 pages[id-1].drawText(item.text, {
                   x: item.x,
@@ -251,6 +251,76 @@ function loadFile() {
                   // font: item.fontStyle,
                   color: PDFLib.rgb(color.r, color.g, color.b),
                 });
+                break;
+              case "links":
+                fontSize = parseInt(item.fontSize);
+                color = hexToRgb(item.color);
+                pages[id-1].drawText(item.text, {
+                  x: item.x,
+                  y: height - item.y - fontSize + (fontSize / 3.75),
+                  size: fontSize,
+                  // font: item.fontStyle,
+                  color: PDFLib.rgb(color.r, color.g, color.b),
+                });
+                const link = createPageLinkAnnotation(pages[id-1], 'https://pdf-lib.js.org/');
+                pages[id-1].node.set(PDFLib.PDFName.of('Annots'), pdfDoc.context.obj([link]));
+                break;
+              case "symbol":
+                color = hexToRgb("#000000");
+                switch (item.symbol_type) {
+                  case "check":
+                    pages[id-1].drawLine({
+                      start: {
+                        x: item.x + (-item.size/2), 
+                        y: height - (item.y + 0)
+                      },
+                      end: {
+                        x: item.x + (-item.size/6), 
+                        y: height - (item.y + (item.size/3))
+                      },
+                      thickness: 1,
+                      color: PDFLib.rgb(color.r, color.g, color.b),
+                    });
+                    pages[id-1].drawLine({
+                      start: {
+                        x: item.x + (-item.size/6), 
+                        y: height - (item.y + (item.size/3))
+                      },
+                      end: {
+                        x: item.x + (item.size/2), 
+                        y: height - (item.y + (-item.size/3))
+                      },
+                      thickness: 1,
+                      color: PDFLib.rgb(color.r, color.g, color.b),
+                    });
+                    break;
+                    case "cross":
+                      pages[id-1].drawLine({
+                        start: {
+                          x: item.x + (-item.size/2), 
+                          y: height - (item.y + -item.size/2)
+                        },
+                        end: {
+                          x: item.x + (item.size/2), 
+                          y: height - (item.y + (item.size/2))
+                        },
+                        thickness: 1,
+                        color: PDFLib.rgb(color.r, color.g, color.b),
+                      });
+                      pages[id-1].drawLine({
+                        start: {
+                          x: item.x + (item.size/2), 
+                          y: height - (item.y + (-item.size/2))
+                        },
+                        end: {
+                          x: item.x + (-item.size/2), 
+                          y: height - (item.y + (item.size/2))
+                        },
+                        thickness: 1,
+                        color: PDFLib.rgb(color.r, color.g, color.b),
+                      });
+                    break;
+                }
                 break;
             }
           }
@@ -261,6 +331,7 @@ function loadFile() {
           download(pdfBytes, "example.pdf", "application/pdf");
         } catch(e) {
           console.log("ENCRYPTED")
+          console.log(e)
           finishLoading();
           alert("File Ter-enkripsi, silahkan dekripsi file terlebih dahulu di https://smallpdf.com/unlock-pdf");
           return;
@@ -289,6 +360,22 @@ function loadFile() {
         overlay.style.display = 'none';
         loadingModal.style.display = 'none';
       }
+
+      const createPageLinkAnnotation = (page, uri) =>
+        page.doc.context.register(
+          page.doc.context.obj({
+            Type: 'Annot',
+            Subtype: 'Link',
+            Rect: [0, 30, 40, 230],
+            Border: [0, 0, 2],
+            C: [0, 0, 1],
+            A: {
+              Type: 'Action',
+              S: 'URI',
+              URI: PDFLib.PDFString.of(uri),
+            },
+          }),
+        );
   </script>
 </body>
 </html>
