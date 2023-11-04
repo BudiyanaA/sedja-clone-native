@@ -234,6 +234,7 @@ function loadFile() {
         try {
           const pdfDoc = await PDFLib.PDFDocument.load(pdf);
           const pages = pdfDoc.getPages();
+          const form = pdfDoc.getForm()
           for (let i = 0; i < items.length; i++) {
             const item = items[i];
             const id = item.canvas_id.split("-")[2];
@@ -319,6 +320,49 @@ function loadFile() {
                         thickness: 1,
                         color: PDFLib.rgb(color.r, color.g, color.b),
                       });
+                    break;
+                    case "dot":
+                      pages[id-1].drawCircle({ 
+                        x: item.x, 
+                        y: height - item.y,
+                        size: item.size/2,
+                        color: PDFLib.rgb(color.r, color.g, color.b),
+                      })
+					          break;
+                }
+                break;
+              case "forms":
+                switch (item.form_type) {
+                  case "textbox":
+				          case "textarea":
+                    const textfield = form.createTextField(`${item.x}${item.y}`)
+                    if(item.form_type == "textarea") {
+                      textfield.enableMultiline();
+                    }
+                    textfield.addToPage(pages[id-1], { 
+                      x: item.x, 
+                      y: height - (item.y + item.height),
+                      width: item.width,
+                      height: item.height, 
+                    })
+				          	break;
+                  case "radio":
+                    const radio = form.createRadioGroup(`${item.x}${item.y}`)
+                    radio.addOptionToPage('', pages[id-1], { 
+                      x: item.x, 
+                      y: height - (item.y + item.height),
+                      width: item.width,
+                      height: item.height,
+                    })
+                    break;
+                  case "checkbox":
+                    const checkbox = form.createCheckBox(`${item.x}${item.y}`)
+                    checkbox.addToPage(pages[id-1], { 
+                      x: item.x, 
+                      y: height - (item.y + item.height),
+                      width: item.width,
+                      height: item.height,
+                    })
                     break;
                 }
                 break;
