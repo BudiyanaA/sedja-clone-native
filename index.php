@@ -366,6 +366,52 @@ function loadFile() {
                     break;
                 }
                 break;
+              case "image":
+                const jpgImage = await pdfDoc.embedJpg(item.src)
+                pages[id-1].drawImage(jpgImage, { 
+                  x: item.x, 
+                  y: height - (item.y + item.height),
+                  width: item.width,
+                  height: item.height,
+                })
+                break;
+              case "witheout":
+                color = hexToRgb(item.backgroundColor);
+                brcolor = hexToRgb(item.borderColor);
+                pages[id-1].drawRectangle({ 
+                  x: item.x, 
+                  y: height - (item.y + item.height),
+                  width: item.width,
+                  height: item.height,
+                  color: PDFLib.rgb(color.r, color.g, color.b),
+                  borderColor: PDFLib.rgb(brcolor.r, brcolor.g, brcolor.b),
+                  borderWidth: parseFloat(item.borderWidth), 
+                })
+                break;
+              case "shape":
+                color = hexToRgb(item.backgroundColor);
+                brcolor = hexToRgb(item.borderColor);
+                if (item.shape_type === "box") {
+			          	pages[id-1].drawRectangle({ 
+                    x: item.x, 
+                    y: height - (item.y + item.height),
+                    width: item.width,
+                    height: item.height,
+                    color: PDFLib.rgb(color.r, color.g, color.b),
+                    borderColor: PDFLib.rgb(brcolor.r, brcolor.g, brcolor.b),
+                    borderWidth: parseFloat(item.borderWidth), 
+                  })
+			          } else if (item.shape_type === "circle") {
+                  pages[id-1].drawCircle({ 
+                    x: item.x, 
+                    y: height - (item.y + item.height),
+                    size: item.width/2,
+                    color: PDFLib.rgb(color.r, color.g, color.b),
+                    borderColor: PDFLib.rgb(brcolor.r, brcolor.g, brcolor.b),
+                    borderWidth: parseFloat(item.borderWidth), 
+                  })
+			          }
+                break;
             }
           }
 
@@ -382,6 +428,14 @@ function loadFile() {
         }
       }
 
+      function base64ToArrayBuffer(base64) {
+    var binaryString = window.atob(base64);
+    var bytes = new Uint8Array(binaryString.length);
+    for (var i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
       function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
