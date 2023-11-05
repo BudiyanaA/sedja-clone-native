@@ -420,6 +420,32 @@ function loadFile() {
                   })
 			          }
                 break;
+              case "anotate":
+                var color = hexToRgb(item.color);
+                var beforeX, beforeY;
+                item.data.forEach(function(coord, index) {
+			          	if (index === 0) {
+                    beforeX = coord.x;
+                    beforeY = coord.y;
+                    return;
+			          	} else {
+			          		pages[id-1].drawLine({
+                       start: {
+                         x: beforeX, 
+                         y: height - beforeY
+                       },
+                       end: {
+                         x: item.x + coord.x, 
+                         y: height - coord.y
+                       },
+                       thickness: parseInt(item.width),
+                      color: PDFLib.rgb(color.r, color.g, color.b),
+                    });
+                    beforeX = coord.x;
+                    beforeY = coord.y;
+			          	}
+			          });
+                break;
             }
           }
 

@@ -65,7 +65,7 @@ const submenuItem = {
       <label>Border Color:</label>
       <input type="color" id="color-anotate" value="#000000">
     </div>
-    <div class="form-group">
+    <!-- <div class="form-group">
       <label for="brush-anotate">Brush:</label>
       <select id="brush-anotate">
         <option value="brush1">Brush 1</option>
@@ -74,7 +74,7 @@ const submenuItem = {
         <option value="brush4">Brush 4</option>
         <option value="brush5">Brush 5</option>
       </select>
-    </div>
+    </div> -->
   `,
   shapes: `
     <div>
