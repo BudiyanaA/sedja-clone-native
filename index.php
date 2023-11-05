@@ -367,8 +367,16 @@ function loadFile() {
                 }
                 break;
               case "image":
-                const jpgImage = await pdfDoc.embedJpg(item.src)
-                pages[id-1].drawImage(jpgImage, { 
+                const type = detectImageType(item.src)
+                if (type == "JPG") {
+                  var image = await pdfDoc.embedJpg(item.src)
+                } else if (type == "PNG") {
+                  var image = await pdfDoc.embedPng(item.src)
+                } else {
+                  break;
+                }
+                
+                pages[id-1].drawImage(image, { 
                   x: item.x, 
                   y: height - (item.y + item.height),
                   width: item.width,
@@ -428,14 +436,17 @@ function loadFile() {
         }
       }
 
-      function base64ToArrayBuffer(base64) {
-    var binaryString = window.atob(base64);
-    var bytes = new Uint8Array(binaryString.length);
-    for (var i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes.buffer;
-}
+      function detectImageType(base64String) {
+        const base64Header = base64String.substring(0, 40);
+        if (base64Header.includes("data:image/jpeg;base64")) {
+          return "JPG";
+        } else if (base64Header.includes("data:image/png;base64")) {
+          return "PNG";
+        } else {
+          return "";
+        }
+      }
+
       function hexToRgb(hex) {
         var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
         return result ? {
