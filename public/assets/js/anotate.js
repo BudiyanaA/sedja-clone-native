@@ -11,7 +11,7 @@ function addAnotate(path) {
 		
 		const width = document.getElementById("width-anotate").value;
 		const color = document.getElementById("color-anotate").value;
-		const brush = document.getElementById("brush-anotate").value;
+		// const brush = document.getElementById("brush-anotate").value;
 
 		const item = {
 			type: "anotate",
@@ -22,7 +22,7 @@ function addAnotate(path) {
 			rotation: 0,
 			width: width,
 			color: color,
-			brush_type: brush,
+			brush_type: 'brush1',
 		};
 
 		return item;
