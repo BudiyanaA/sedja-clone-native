@@ -420,6 +420,37 @@ function loadFile() {
                   })
 			          }
                 break;
+              case "sign-container":
+                color = hexToRgb(item.backgroundColor);
+                brcolor = hexToRgb(item.borderColor);
+                if (item.signed) {
+                  const type = detectImageType(item.src)
+                  if (type == "JPG") {
+                    var image = await pdfDoc.embedJpg(item.src)
+                  } else if (type == "PNG") {
+                    var image = await pdfDoc.embedPng(item.src)
+                  } else {
+                    break;
+                  }
+                  
+                  pages[id-1].drawImage(image, { 
+                    x: item.x, 
+                    y: height - (item.y + item.height),
+                    width: item.width,
+                    height: item.height,
+                  })
+                } else {
+                  pages[id-1].drawRectangle({ 
+                    x: item.x, 
+                    y: height - (item.y + item.height),
+                    width: item.width,
+                    height: item.height,
+                    color: PDFLib.rgb(color.r, color.g, color.b),
+                    borderColor: PDFLib.rgb(brcolor.r, brcolor.g, brcolor.b),
+                    borderWidth: parseFloat(item.borderWidth), 
+                  })
+                }
+                break;
               case "anotate":
                 var color = hexToRgb(item.color);
                 var beforeX, beforeY;
