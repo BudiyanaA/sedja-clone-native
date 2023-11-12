@@ -256,6 +256,12 @@ function loadFile() {
               case "links":
                 fontSize = parseInt(item.fontSize);
                 color = hexToRgb(item.color);
+
+                const itemLinkCanvas = document.createElement("canvas");
+	              const itemLinkContext = itemLinkCanvas.getContext('2d');
+                itemWidth = itemLinkContext.measureText(item.text).width;
+                itemY = height - (item.y + fontSize)
+
                 pages[id-1].drawText(item.text, {
                   x: item.x,
                   y: height - item.y - fontSize + (fontSize / 3.75),
@@ -263,7 +269,9 @@ function loadFile() {
                   // font: item.fontStyle,
                   color: PDFLib.rgb(color.r, color.g, color.b),
                 });
-                const link = createPageLinkAnnotation(pages[id-1], 'https://pdf-lib.js.org/');
+                const link = createPageLinkAnnotation(pages[id-1], item.link, [
+                  item.x + 3.75, itemY, item.x + 3.75 + itemWidth, itemY + fontSize
+                ]);
                 pages[id-1].node.set(PDFLib.PDFName.of('Annots'), pdfDoc.context.obj([link]));
                 break;
               case "symbol":
@@ -432,7 +440,7 @@ function loadFile() {
                   } else {
                     break;
                   }
-                  
+
                   pages[id-1].drawImage(image, { 
                     x: item.x, 
                     y: height - (item.y + item.height),
@@ -527,12 +535,12 @@ function loadFile() {
         loadingModal.style.display = 'none';
       }
 
-      const createPageLinkAnnotation = (page, uri) =>
+      const createPageLinkAnnotation = (page, uri, rect) =>
         page.doc.context.register(
           page.doc.context.obj({
             Type: 'Annot',
             Subtype: 'Link',
-            Rect: [0, 30, 40, 230],
+            Rect: rect, //[0, 30, 40, 230],
             Border: [0, 0, 2],
             C: [0, 0, 1],
             A: {
