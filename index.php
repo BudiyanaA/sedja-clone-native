@@ -9,6 +9,7 @@
 </head>
 <body>
   <div style="margin: auto;">
+    <input type="text" id="doc-url">
     <input type="file" id="pdf-file" accept="application/pdf">
     <button class="save" onclick="saveFile()">Save</button>
     <input type="text" id="id-docs">
@@ -147,6 +148,7 @@ function loadFile() {
         console.log(doc.items);
         console.log(`Data dokumen dengan ID ${docId}: `, doc);
           if (doc.url) {
+            document.getElementById("doc-url").value = doc.url;
             var pdfjsLib = window['pdfjs-dist/build/pdf'];
             pdfjsLib.getDocument({
               url: doc.url,
@@ -230,7 +232,17 @@ function loadFile() {
 
         // v3
         startLoading();
-        const pdf = await pdfFile.files[0].arrayBuffer();
+        var pdf = null;
+        if (pdfFile.files[0] !== undefined) {
+            pdf = await pdfFile.files[0].arrayBuffer();
+        } else if ( document.getElementById("doc-url").value != '') {
+            const url = document.getElementById("doc-url").value
+            pdf = await fetch(url).then(res => res.arrayBuffer())
+        } else {
+            console.error("download failed")
+            return
+        }
+
         try {
           const pdfDoc = await PDFLib.PDFDocument.load(pdf);
           const pages = pdfDoc.getPages();
