@@ -8,7 +8,4 @@ function getBaseUrl() {
     
     return rtrim($baseUrl, '/');
 }
-
-// $baseUrl = getBaseUrl();
-// echo "Base URL: " . $baseUrl;
 ?>

@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-	<title>Upload dan Tampil PDF di Canvas</title>
+  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+  <title>Upload dan Tampil PDF di Canvas</title>
   <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/style.css' ?>" />
   <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/font-awesome.min.css' ?>" />
 </head>
@@ -64,19 +64,18 @@
   <script src="<?php echo getBaseUrl() . '/public/assets/js/anotate.js' ?>"></script>
   <script src="<?php echo getBaseUrl() . '/public/assets/js/main.js' ?>"></script>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://unpkg.com/pdf-lib"></script>
   <script src="https://unpkg.com/downloadjs@1.4.7"></script>
 
   <script>
     function generateId() {
-  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  var id = '';
-  for (var i = 0; i < 20; i++) {
-    id += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return id;
-}
+      var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      var id = '';
+      for (var i = 0; i < 20; i++) {
+        id += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return id;
+    }
 
 function saveFile() {
   var input = document.querySelector('input[type="file"]');
@@ -234,38 +233,6 @@ function loadFile() {
   }
 
       async function downloadPDF() {
-        // var element = document.getElementById('canvas-wrapper');
-        // var opt = {
-        //     margin: 10,
-        //     filename: 'canvas_export.pdf',
-        //     image: { type: 'jpeg', quality: 1 },
-        //     html2canvas: { scale: 2 },
-        //     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        // };
-        // html2pdf().set(opt).from(element).save();
-
-        // v2
-        // editingItem = null;
-        // drawItems();
-
-        // window.jsPDF = window.jspdf.jsPDF;
-        // var doc = new jsPDF();
-
-        // var canvases = document.querySelectorAll('.item-canvas');
-	      // canvases.forEach(function(canvas, i) {          
-        //   var canvas1 = document.getElementById(`pdf-canvas-${i+1}`);
-        //   var canvas2 = document.getElementById(`item-canvas-${i+1}`);
-        //   var imageData1 = canvas1.toDataURL('image/png');
-        //   var imageData2 = canvas2.toDataURL('image/png');
-        //   doc.addImage(imageData1, 'PNG', 10, 10, 208, canvas1.height * 208 / canvas1.width, '', 'FAST');
-        //   doc.addImage(imageData2, 'PNG', 10, 10, 208, canvas2.height * 208 / canvas2.width, '', 'FAST');
-        //   doc.addPage();
-	      // });
-        // setTimeout(function() {
-        //   doc.save('canvas.pdf');
-        // }, 1000); 
-
-        // v3
         startLoading();
         var pdf = null;
         if (pdfFile.files[0] !== undefined) {
