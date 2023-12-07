@@ -15,5 +15,5 @@ if (isset($_FILES['pdfFile'])) {
       $response = array("success" => false);
       echo json_encode($response);
     }
-  }
+  } 
 ?>

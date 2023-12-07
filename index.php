@@ -12,7 +12,8 @@
   <div style="margin: auto;">
     <input type="hidden" id="doc-url">
     <input type="file" id="pdf-file" accept="application/pdf">
-    <button class="save" onclick="saveFile()">Save</button>
+    <button id="save-button" class="save" onclick="saveFile()">Save</button>
+    <button id="update-button" class="save" onclick="updateFile()" style="display:none;">Update</button>
     <input type="text" id="id-docs">
     <button class="load" onclick="loadFile()">Load</button>
     <button onclick="downloadPDF()">Download</button>
@@ -136,6 +137,36 @@ function saveFile() {
   xhr.send(formData);
 }
 
+function updateFile() {
+          var xhrDb = new XMLHttpRequest();
+          xhrDb.open('PUT', 'koneksi.php', true);
+          xhrDb.setRequestHeader('Content-type', 'application/json');
+
+          var id = document.getElementById('id-docs').value;
+          if (id == '') return;
+
+          items.forEach(function(v){ delete v.img_obj });
+
+          var data = {
+            id: id,
+            items: JSON.stringify(items)
+          };
+
+          xhrDb.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE) {
+              if (this.status === 200 && JSON.parse(this.response).success) {
+                console.log("Data berhasil diupdate ke database");
+                alert("File berhasil diupdate ke database dengan id: " + id);
+              } else {
+                console.log("Terjadi kesalahan saat menyimpan data ke database: " + this.status);
+                alert("Terjadi kesalahan saat menyimpan data ke database.");
+              }
+            }
+          };
+
+          xhrDb.send(JSON.stringify(data));
+}
+
 function loadFile() {
   const docId = document.getElementById("id-docs").value;
     fetch(`load.php?id=${docId}`)
@@ -178,6 +209,9 @@ function loadFile() {
             console.log(items);
             drawItems();
           }
+
+          document.getElementById('save-button').style.display = 'none';
+          document.getElementById('update-button').style.display = 'block';
         })
         .catch(error => {
           alert("Error saat mengambil dokumen");
