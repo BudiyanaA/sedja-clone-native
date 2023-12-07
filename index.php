@@ -3,13 +3,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 	<title>Upload dan Tampil PDF di Canvas</title>
   <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/style.css' ?>" />
   <link rel="stylesheet" href="<?php echo getBaseUrl() . '/public/assets/css/font-awesome.min.css' ?>" />
 </head>
 <body>
   <div style="margin: auto;">
-    <input type="text" id="doc-url">
+    <input type="hidden" id="doc-url">
     <input type="file" id="pdf-file" accept="application/pdf">
     <button class="save" onclick="saveFile()">Save</button>
     <input type="text" id="id-docs">
