@@ -4,3 +4,7 @@ max_allowed_packet = 128M
 
 #nginx
 client_max_body_size 100M
+
+#php
+post_max_size = 50M
+upload_max_filesize = 50M
